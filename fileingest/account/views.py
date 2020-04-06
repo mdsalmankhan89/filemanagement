@@ -40,23 +40,37 @@ def upload(request):
 		form = FileForm()
 	return render(request, 'upload.html', { 'form' : form, 'filelist' : filelist })
 	
-#def upload(request):
-#	if request.method == 'POST':
-#		uploaded_file = request.FILES['document']
-#		fs = FileSystemStorage()
-#		fs.save(uploaded_file.name, uploaded_file)
-#	return render(request,'upload.html')
-	
-#def file_list(request):
-#	filelist = Files.objects.all()
-#	return render(request, 'file_list.html', {'filelist' : filelist})
-	
-#def file_upload(request):
-#	if request.method == 'POST':
-#		form = FileForm(request.POST, request.FILES)
-#		if form.is_valid():
-#			form.save()
-#			return redirect('file_list')
-#		else:
-#			form = FileForm()
-#	return render(request, 'file_upload.html', { 'form' : form })
+def register(request):
+
+	if request.method == 'POST':
+		firstname = request.POST['firstname']
+		lastname = request.POST['lastname']
+		username = request.POST['username']
+		email = request.POST['email']
+		password = request.POST['password']
+		confirmpassword = request.POST['confirmpassword']
+		
+		if username=='':
+			messages.info(request, 'Please provide Username')
+			return redirect('register')
+		elif password=='':
+			messages.info(request, 'Please provide password')
+			return redirect('register')
+		elif password==confirmpassword:
+			if User.objects.filter(username=username).exists():
+				messages.info(request, 'Username Taken')
+				return redirect('register')
+			elif User.objects.filter(email=email).exists():
+				messages.info(request, 'Email Taken')
+				return redirect('register')
+			else:
+				user = User.objects.create_user(username=username, password=password, email=email, first_name=firstname, last_name=lastname)
+				user.save();
+				messages.info(request, 'User Created')
+				return redirect('upload')
+		else:
+			messages.info(request, 'Password Not Matching')
+			return redirect('register')
+		return redirect('/')
+	else:
+		return render(request, 'register.html')

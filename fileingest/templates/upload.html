@@ -33,7 +33,11 @@
 								<ul class="d-flex flex-row align-items-start justify-content-start">
 									<li class="active"><a href="index.html">Home</a></li>
 									<li><a href="about.html">About us</a></li>
-									{% if user.is_authenticated %}
+									{% if user.is_authenticated and user.username == 'admin'%}
+										<li><a href="#">Hello {{user.first_name}}</a></li>
+										<li><a href="logout">Logout</a></li>
+										<li><a href="register">Add Users</a></li>
+									{% elif user.is_authenticated and user.username != 'admin'%}
 										<li>Hello {{user.first_name}}</li>
 										<li><a href="logout">Logout</a></li>
 									{% else %}
@@ -41,7 +45,6 @@
 									{% endif %}
 								</ul>
 							</nav>
-							<div class="header_phone ml-auto">Call us: 00-56 445 678 33</div>
 
 							<!-- Hamburger -->
 
@@ -157,21 +160,13 @@
 								{% for file in filelist %}
 									<tr>
 										<td>{{file.fileid}}</td>
-										<td>{{file.files}}</td>
+										<td><a href="{{file.files.url}}" target="_blank">{{file.files}}</a></td>
 										<td>{{file.create_dte}}</td>
 										<td>{{file.user_id}}</td>
 									</tr>
 								{% endfor %}
 							</tbody>
 							</table>
-						</div>
-						<div class="home_search_content">
-							<form method="POST" class="home_search_form" id="home_search_form" action="register">
-								{% csrf_token %}
-								<div class="d-flex flex-lg-row flex-column align-items-start justify-content-lg-between justify-content-start">
-									<input type="submit" class="home_search_button" value="Register User">
-								</div>
-							</form>
 						</div>
 						</div>
 					</div>
