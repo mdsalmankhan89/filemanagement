@@ -1,0 +1,68 @@
+[
+   {
+      "ruleId":"1",
+      "name":"Maximo Open WOS",
+      "regex":"AP&ISA_20[0-9]{2}(01JAN|02FEB|03MAR|04APR|05MAY|06JUN|07JUL|08AUG|09SEP|10OCT|11NOV|12DEC)_Maximo_Open_wos_BI_[0-9]{4}(((0[13578]|(10|12))(0[1-9]|[1-2][0-9]|3[0-1]))|(02(0[1-9]|[1-2][0-9]))|((0[469]|11)(0[1-9]|[1-2][0-9]|30)))(\\.xlsx)$",
+      "sheetName":"Data",
+      "columns":[
+         "col1",
+         "col2",
+         "col3"
+      ]
+   },
+   {
+      "ruleId":"2",
+      "name":"Maximo Created WOS",
+      "regex":"AP&ISA_20[0-9]{2}(01JAN|02FEB|03MAR|04APR|05MAY|06JUN|07JUL|08AUG|09SEP|10OCT|11NOV|12DEC)_Maximo_Created&RP_wos_BI_[0-9]{4}(((0[13578]|(10|12))(0[1-9]|[1-2][0-9]|3[0-1]))|(02(0[1-9]|[1-2][0-9]))|((0[469]|11)(0[1-9]|[1-2][0-9]|30)))(\\.xlsx)$",
+      "sheetName":"Data",
+      "columns":[
+         "col4",
+         "col5",
+         "col6"
+      ]
+   },
+   {
+      "ruleId":"3",
+      "name":"Maximo Resolution WOS",
+      "regex":"AP&ISA_20[0-9]{2}(01JAN|02FEB|03MAR|04APR|05MAY|06JUN|07JUL|08AUG|09SEP|10OCT|11NOV|12DEC)_Maximo_Resoln_wos_BI_[0-9]{4}(((0[13578]|(10|12))(0[1-9]|[1-2][0-9]|3[0-1]))|(02(0[1-9]|[1-2][0-9]))|((0[469]|11)(0[1-9]|[1-2][0-9]|30)))(\\.xlsx)$",
+      "sheetName":"Data",
+      "columns":[
+         "col7",
+         "col8",
+         "col9"
+      ]
+   },
+   {
+      "ruleId":"4",
+      "name":"Finance",
+      "regex":"Quarterly Finance Data for Upload (Q1|Q2|Q3|Q4)20[0-9]{2}_[0-9]{4}(((0[13578]|(10|12))(0[1-9]|[1-2][0-9]|3[0-1]))|(02(0[1-9]|[1-2][0-9]))|((0[469]|11)(0[1-9]|[1-2][0-9]|30)))(\\.xlsx)$",
+      "sheetName":"Data1",
+      "columns":[
+         "col10",
+         "col11",
+         "col12"
+      ]
+   },
+   {
+      "ruleId":"5",
+      "name":"Finance",
+      "regex":"Quarterly Finance Data for Upload (Q1|Q2|Q3|Q4)20[0-9]{2}_[0-9]{4}(((0[13578]|(10|12))(0[1-9]|[1-2][0-9]|3[0-1]))|(02(0[1-9]|[1-2][0-9]))|((0[469]|11)(0[1-9]|[1-2][0-9]|30)))(\\.xlsx)$",
+      "sheetName":"Data2",
+      "columns":[
+         "col13",
+         "col14",
+         "col15"
+      ]
+   },
+   {
+      "ruleId":"6",
+      "name":"Finance",
+      "regex":"Quarterly Finance Data for Upload (Q1|Q2|Q3|Q4)20[0-9]{2}_[0-9]{4}(((0[13578]|(10|12))(0[1-9]|[1-2][0-9]|3[0-1]))|(02(0[1-9]|[1-2][0-9]))|((0[469]|11)(0[1-9]|[1-2][0-9]|30)))(\\.xlsx)$",
+      "sheetName":"Data3",
+      "columns":[
+         "col16",
+         "col17",
+         "col18"
+      ]
+   }
+]
