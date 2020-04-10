@@ -15,10 +15,10 @@ json_string = f.read()
 config = json.loads(json_string)
 f.close()
 
-filename = "AP&ISA_202002Feb_Maximo_Resoln_wos_BI_20200310.xlsx"
+filename = "AP&ISA_202002Feb_Maximo_Resoln_wos_BI_20200310.xlsx" # will flow from the frontend as input
 filepath = os.path.join(FILES_FOLDER, filename)
 
-rule = config[2];
+rule = config[2]
 
 if (re.search(rule["pattern_period"],filename,re.IGNORECASE)):
 	book = xlrd.open_workbook(filepath)
@@ -29,5 +29,6 @@ if (re.search(rule["pattern_period"],filename,re.IGNORECASE)):
 			diff = list(set(a) - set(xl_sheet.row(0)))
 			print((xl_sheet.row(0))[0])
 			print(diff)
+ 
 	
  
