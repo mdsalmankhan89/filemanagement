@@ -150,7 +150,7 @@
 							<table class="table">
 							<thead>
 								<tr>
-									<th>File Id</th>
+									<th>Upload Id</th>
 									<th>Filename</th>
 									<th>Date Time</th>
 									<th>User</th>
@@ -159,7 +159,7 @@
 							<tbody>
 								{% for file in filelist %}
 									<tr>
-										<td>{{file.fileid}}</td>
+										<td>{{file.uploadid}}</td>
 										<td><a href="{{file.files.url}}" target="_blank">{{file.files}}</a></td>
 										<td>{{file.create_dte}}</td>
 										<td>{{file.user_id}}</td>

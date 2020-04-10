@@ -4,7 +4,7 @@ from django.contrib.auth.models import User, auth
 from django.core.files.storage import FileSystemStorage
 
 from .forms import FileForm
-from .models import Files
+from .models import Files, FileLogs
 
 # Create your views here.
 def login(request):
@@ -32,13 +32,24 @@ def upload(request):
 	if request.method == 'POST':
 		form = FileForm(request.POST, request.FILES)
 		if form.is_valid():
-			fs = form.save(commit=False)
-			fs.user = request.user
-			fs.save()
+#			fs = form.save(commit=False)
+#			fs.user = request.user
+#			fs.save()
+			handle_files(request.FILES['files'],request.user)
 			return render(request, 'upload.html', { 'form' : form, 'filelist' : filelist })
 	else:
 		form = FileForm()
 	return render(request, 'upload.html', { 'form' : form, 'filelist' : filelist })
+	
+
+def handle_files(csv_file, user):
+
+   newfile = Files(files=csv_file,user=user)
+   newfile.save()
+
+   entry = FileLogs(uploadid=Files.objects.get(uploadid=newfile.uploadid), files=csv_file, logs='File Loaded')
+   entry.save()	
+
 	
 def register(request):
 
