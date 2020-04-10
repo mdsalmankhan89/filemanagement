@@ -52,12 +52,15 @@ if re.search(rule["pattern_period"],filename,re.IGNORECASE) and re.search(rule["
 						for cell in xl_sheet[counter]: 
 							columns.append(cell.value)
 						if [item for item in rule["columns"] if item not in columns]:
-							counter = counter + 1 
+							counter = counter + 1
+							if counter > 50:
+								break
 							continue
 						else:
 							print ("found header: ",counter," valid file") # in this case we must return header value also
 							break
-						
+					if counter > 50:
+						print("header not found")										
 else:
 	print("File Name not correct")
  
