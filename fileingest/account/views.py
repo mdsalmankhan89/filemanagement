@@ -29,6 +29,7 @@ def logout(request):
 	
 def upload(request):
 	filelist = Files.objects.all()
+	fileloglist = FileLogs.objects.all()
 	if request.method == 'POST':
 		form = FileForm(request.POST, request.FILES)
 		if form.is_valid():
@@ -36,10 +37,10 @@ def upload(request):
 #			fs.user = request.user
 #			fs.save()
 			handle_files(request.FILES['files'],request.user)
-			return render(request, 'upload.html', { 'form' : form, 'filelist' : filelist })
+			return render(request, 'upload.html', { 'form' : form, 'filelist' : filelist, 'fileloglist' : fileloglist })
 	else:
 		form = FileForm()
-	return render(request, 'upload.html', { 'form' : form, 'filelist' : filelist })
+	return render(request, 'upload.html', { 'form' : form, 'filelist' : filelist, 'fileloglist' : fileloglist })
 	
 
 def handle_files(csv_file, user):
@@ -47,7 +48,7 @@ def handle_files(csv_file, user):
    newfile = Files(files=csv_file,user=user)
    newfile.save()
 
-   entry = FileLogs(uploadid=Files.objects.get(uploadid=newfile.uploadid), files=csv_file, logs='File Loaded')
+   entry = FileLogs(uploadid=Files.objects.get(uploadid=newfile.uploadid), files=csv_file, logs='File Loaded new')
    entry.save()	
 
 	

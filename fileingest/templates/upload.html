@@ -15,6 +15,11 @@
 <link rel="stylesheet" type="text/css" href="{% static 'plugins/OwlCarousel2-2.2.1/animate.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'styles/main_styles.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'styles/responsive.css' %}">
+<link href="{% static 'css/datatables.min.css' %}" rel="stylesheet" type="text/css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </head>
 <body>
 
@@ -132,42 +137,60 @@
 				<div class="col">
 					<div class="home_search_container">
 						<div class="home_search_title">Upload</div>
-						<div class="home_search_content">
-							<form method="POST" class="home_search_form" id="home_search_form" enctype="multipart/form-data">
-								{% csrf_token %}
-								<div class="d-flex flex-lg-row flex-column align-items-start justify-content-lg-between justify-content-start">
-									{{form}}
-								</div>
-								<div class="form-group form-button">
-									<input type="submit" value="Upload File"/>
-								</div>
-								{% for message in messages %}
-								<br><h4 style="color:red;">{{message}}</h4>
-								{% endfor %}
-							</form>
-						</div>
-						<div class="home_search_content">
-							<table class="table">
-							<thead>
-								<tr>
-									<th>Upload Id</th>
-									<th>Filename</th>
-									<th>Date Time</th>
-									<th>User</th>
-								</tr>
-							</thead>
-							<tbody>
-								{% for file in filelist %}
-									<tr>
-										<td>{{file.uploadid}}</td>
-										<td><a href="{{file.files.url}}" target="_blank">{{file.files}}</a></td>
-										<td>{{file.create_dte}}</td>
-										<td>{{file.user_id}}</td>
-									</tr>
-								{% endfor %}
-							</tbody>
-							</table>
-						</div>
+							<div class="home_search_content">
+								<form method="POST" class="home_search_form" id="home_search_form" enctype="multipart/form-data">
+									{% csrf_token %}
+									<div class="d-flex flex-lg-row flex-column align-items-start justify-content-lg-between justify-content-start">
+										{{form}}
+									</div>
+									<div class="form-group form-button">
+										<input type="submit" value="Upload File"/>
+									</div>
+									{% for message in messages %}
+									<br><h4 style="color:red;">{{message}}</h4>
+									{% endfor %}
+								</form>
+							</div>
+							<div class="home_search_content">
+								<button id="btn-show-all-children" type="button">Expand All</button>
+								<button id="btn-hide-all-children" type="button">Collapse All</button>
+								<hr>
+								<table id="example" class="display">
+									<thead>
+										<tr>
+											<th>Upload Id</th>
+											<th>Filename</th>
+											<th>Date Time</th>
+											<th>User</th>
+											<th class="none">Logs</th>
+										</tr>
+									</thead>
+									<tfoot>
+										<tr>
+											<th>Upload Id</th>
+											<th>Filename</th>
+											<th>Date Time</th>
+											<th>User</th>
+											<th>Logs</th>
+										</tr>
+									</tfoot>
+									<tbody>
+										{% for file in filelist %}
+											{% for filelog in fileloglist %}
+												{% if file.uploadid == filelog.uploadid_id %}
+													<tr>
+														<td>{{file.uploadid}}</td>
+														<td><a href="{{file.files.url}}" target="_blank">{{file.files}}</a></td>
+														<td>{{file.create_dte}}</td>
+														<td>{{file.user_id}}</td>
+														<td>{{filelog.logs}}</td
+													</tr>
+												{% endif %}
+											{% endfor %}
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -176,7 +199,32 @@
 	</div>
 	
 </div>
+<!--<script>
+$(document).ready(function(){
+  $(".btn-primary").click(function(){
+    $(".collapse").collapse('toggle');
+  });
+});
+</script>-->
+<script>
+$(document).ready(function (){
+    var table = $('#example').DataTable({
+        'responsive': true
+    });
 
+    // Handle click on "Expand All" button
+    $('#btn-show-all-children').on('click', function(){
+        // Expand row details
+        table.rows(':not(.parent)').nodes().to$().find('td:first-child').trigger('click');
+    });
+
+    // Handle click on "Collapse All" button
+    $('#btn-hide-all-children').on('click', function(){
+        // Collapse row details
+        table.rows('.parent').nodes().to$().find('td:first-child').trigger('click');
+    });
+});
+</script>
 <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
 <script src="{% static 'styles/bootstrap4/popper.js' %}"></script>
 <script src="{% static 'styles/bootstrap4/bootstrap.min.js' %}"></script>
@@ -186,5 +234,6 @@
 <script src="{% static 'plugins/easing/easing.js' %}"></script>
 <script src="{% static 'plugins/parallax-js-master/parallax.min.js' %}"></script>
 <script src="{% static 'js/custom.js' %}"></script>
+<script src="{% static 'js/datatables.min.js' %}"></script>
 </body>
 </html>
