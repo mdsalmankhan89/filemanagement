@@ -62,16 +62,15 @@ def handle_files(csv_file, user):
 
 def validate(csv_file, new_file, uploadid):
 	
-	print(new_file)
+	print(csv_file)
 	filedata = FilesData.objects.get(filename=csv_file) #Need to include user id filter also to fetch rule id
-	
-	BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-	FILES_FOLDER = os.path.join(BASE_DIR,new_file)
+	#filename = "AP&ISA_202002Feb_Maximo_Resoln_wos_BI_20200310.xlsx"
 	filename = str(csv_file)
-	filepath = os.path.join(FILES_FOLDER, filename)
-	#filepath = "C:\\GITHUB\\filemanagement\\fileingest\\media\\files\\AP&ISA_202002Feb_Maximo_Resoln_wos_BI_20200310.xlsx"
-	
-	
+	BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+	FILES_FOLDER = os.path.join(BASE_DIR,'media\\files')
+	filepath = os.path.join(FILES_FOLDER,filename)
+	#filepath = "C:\\Users\\salman\\Desktop\\DjangoLearning\\projects\\DataIngestion\\filemanagement\\fileingest\\media\\files\\APISA_202002Feb_Maximo_Resoln_wos_BI_20200310.xlsx"
+		
 	rule = Rules.objects.get(ruleid=filedata.ruleid)
 	rule = json.loads(rule.rule)
 	

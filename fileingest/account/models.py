@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime
+from . import storage
 
 # Create your models here.
 class FilesData(models.Model):
@@ -17,7 +18,7 @@ class Rules(models.Model):
 class Files(models.Model):
     uploadid = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    files = models.FileField(upload_to='files/')
+    files = models.FileField(upload_to='files/', storage = storage.CustomFileSystemStorage() )
     create_dte = models.DateTimeField(default=datetime.now)
 	
 class FileLogs(models.Model):
