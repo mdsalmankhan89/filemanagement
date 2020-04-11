@@ -3,6 +3,17 @@ from django.contrib.auth.models import User
 from datetime import datetime
 
 # Create your models here.
+class FilesData(models.Model):
+	fileid = models.AutoField(primary_key=True)
+	filename = models.CharField(max_length=255)
+	userid = models.IntegerField()
+	ruleid = models.IntegerField()
+	
+class Rules(models.Model):
+	ruleid = models.AutoField(primary_key=True)
+	rule = models.TextField()
+
+
 class Files(models.Model):
     uploadid = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
