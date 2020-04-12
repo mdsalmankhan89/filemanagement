@@ -35,15 +35,24 @@ def logout(request):
 	return redirect("/")
 	
 def upload(request):
-	filelist = Files.objects.all()
+
+	loglist = []
+	
+	try:
+		filelist = Files.objects.filter(user_id=request.user)
+	except Files.DoesNotExist:
+		filelist = None
+	
 	fileloglist = FileLogs.objects.all()
+	
 	if request.method == 'POST':
 		form = FileForm(request.POST, request.FILES)
 		if form.is_valid():
-#			fs = form.save(commit=False)
-#			fs.user = request.user
-#			fs.save()
+		
 			handle_files(request.FILES['files'],request.user)
+			
+			filelist = Files.objects.filter(user_id=request.user)
+			
 			return render(request, 'upload.html', { 'form' : form, 'filelist' : filelist, 'fileloglist' : fileloglist })
 	else:
 		form = FileForm()
@@ -79,19 +88,19 @@ def validate(csv_file, new_file, uploadid):
 		pattern_period = (re.search(rule["pattern_period"],filename,re.IGNORECASE)).group(0) #extract the period 
 		book = openpyxl.load_workbook(filepath) # if yes, open the workbook 
 		
-		entry = FileLogs(uploadid =uploadid, files=csv_file, logs='File Name Validation : Successful')
-  		entry.save()
+		entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='File Name Validation : Successful')
+		entry.save()
 		sheet_found = 0
 		for sheetname in book.sheetnames:
 			if re.search(rule["sheetName"],sheetname,re.IGNORECASE): # check if we have the required sheet. 
-				entry = FileLogs(uploadid =uploadid, files=csv_file, logs=('Sheet Name "' + sheetname+ '" Validation : Successful'))
-  				entry.save()
+				entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs=('Sheet Name "' + sheetname+ '" Validation : Successful'))
+				entry.save()
 				sheet_found = 1  
 
 				xl_sheet = book[sheetname]
 				if xl_sheet.max_column == 0:
-					entry = FileLogs(uploadid =uploadid, files=csv_file, logs=('No data present in SheetName: ' + sheetname))
-  					entry.save()
+					entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs=('No data present in SheetName: ' + sheetname))
+					entry.save()
 				else:
 					columns=[]
 					if rule["header"]:
@@ -102,11 +111,11 @@ def validate(csv_file, new_file, uploadid):
 						missing_columns =  [item for item in rule["columns"] if item not in columns]
 
 						if missing_columns:
-							entry = FileLogs(uploadid =uploadid, files=csv_file, logs=('All expected Columns not present in the Sheet: ' + sheetname))
-  							entry.save()
+							entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs=('All expected Columns not present in the Sheet: ' + sheetname))
+							entry.save()
 						else:
-							entry = FileLogs(uploadid =uploadid, files=csv_file, logs='All validations Successful. Ready to process.')
-  							entry.save()
+							entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='All validations Successful. Ready to process.')
+							entry.save()
 						
 					else:
 						no_of_rows = xl_sheet.max_row
@@ -121,20 +130,20 @@ def validate(csv_file, new_file, uploadid):
 									break
 								continue
 							else:
-								entry = FileLogs(uploadid =uploadid, files=csv_file, logs=('Header found at row number: '+ counter))
-  								entry.save()
-							 	entry = FileLogs(uploadid =uploadid, files=csv_file, logs='All validations Successful. Ready to process.')
+								entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs=('Header found at row number: '+ str(counter)))
+								entry.save()
+								entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='All validations Successful. Ready to process.')
 								entry.save() 
 								break
 						if counter > 50:
-							entry = FileLogs(uploadid =uploadid, files=csv_file, logs=('Header not found in top 50 rows'))
-  							entry.save()
+							entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs=('Header not found in top 50 rows'))
+							entry.save()
 		if sheet_found == 0:
-			entry = FileLogs(uploadid =uploadid, files=csv_file, logs=('Sheet Name "' + sheetname+ '" Validation : Failed. Expected Sheet Not Found.'))
-  			entry.save()
+			entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs=('Sheet Name "' + sheetname+ '" Validation : Failed. Expected Sheet Not Found.'))
+			entry.save()
 	else:
-		entry = FileLogs(uploadid =uploadid, files=csv_file, logs='File Name Validation : Failed')
-  		entry.save()
+		entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='File Name Validation : Failed')
+		entry.save()
 
    
 def register(request):

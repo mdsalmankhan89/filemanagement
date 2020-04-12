@@ -176,17 +176,19 @@
 									</tfoot>
 									<tbody>
 										{% for file in filelist %}
-											{% for filelog in fileloglist %}
-												{% if file.uploadid == filelog.uploadid_id %}
 													<tr>
 														<td>{{file.uploadid}}</td>
 														<td><a href="{{file.files.url}}" target="_blank">{{file.files}}</a></td>
 														<td>{{file.create_dte}}</td>
 														<td>{{file.user_id}}</td>
-														<td>{{filelog.logs}}</td
+														<td>
+														{% for filelog in fileloglist %}
+															{% if file.uploadid == filelog.uploadid_id %}
+																<br>{{filelog.logs}}
+															{% endif %}
+														{% endfor %}
+														</td>
 													</tr>
-												{% endif %}
-											{% endfor %}
 										{% endfor %}
 									</tbody>
 								</table>
