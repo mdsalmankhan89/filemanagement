@@ -38,6 +38,8 @@ def upload(request):
 
 	loglist = []
 	
+	filemetas = FilesData.objects.filter(userid=request.user.id)
+	
 	try:
 		filelist = Files.objects.filter(user_id=request.user)
 	except Files.DoesNotExist:
@@ -48,15 +50,14 @@ def upload(request):
 	if request.method == 'POST':
 		form = FileForm(request.POST, request.FILES)
 		if form.is_valid():
-		
 			handle_files(request.FILES['files'],request.user)
-			
 			filelist = Files.objects.filter(user_id=request.user)
-			
-			return render(request, 'upload.html', { 'form' : form, 'filelist' : filelist, 'fileloglist' : fileloglist })
+			upload_value = request.POST.get('ruleid')
+			print(upload_value)
+			return render(request, 'upload.html', { 'form' : form, 'filelist' : filelist, 'fileloglist' : fileloglist, 'filemetas' : filemetas  })
 	else:
 		form = FileForm()
-	return render(request, 'upload.html', { 'form' : form, 'filelist' : filelist, 'fileloglist' : fileloglist })
+	return render(request, 'upload.html', { 'form' : form, 'filelist' : filelist, 'fileloglist' : fileloglist, 'filemetas' : filemetas })
 	
 
 def handle_files(csv_file, user):

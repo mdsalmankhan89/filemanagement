@@ -138,18 +138,21 @@
 					<div class="home_search_container">
 						<div class="home_search_title">Upload</div>
 							<div class="home_search_content">
+								{% for filemeta in filemetas %}
 								<form method="POST" class="home_search_form" id="home_search_form" enctype="multipart/form-data">
 									{% csrf_token %}
 									<div class="d-flex flex-lg-row flex-column align-items-start justify-content-lg-between justify-content-start">
 										{{form}}
 									</div>
 									<div class="form-group form-button">
+										<input type="hidden" value="{{filemeta.ruleid}}" name="ruleid"/>
 										<input type="submit" value="Upload File"/>
 									</div>
 									{% for message in messages %}
 									<br><h4 style="color:red;">{{message}}</h4>
 									{% endfor %}
 								</form>
+								{% endfor %}
 							</div>
 							<div class="home_search_content">
 								<button id="btn-show-all-children" type="button">Expand All</button>
