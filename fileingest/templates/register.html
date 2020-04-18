@@ -135,6 +135,11 @@
 									<input type="text" class="search_input search_input_1" placeholder="FirstName" name="firstname" required="required">
 									<input type="text" class="search_input search_input_1" placeholder="LastName" name="lastname" required="required">
 									<input type="text" class="search_input search_input_1" placeholder="UserName" name="username" required="required">
+									<select name="mdname" size="4" multiple>
+									{% for rule in rules %}
+										<option value="{{rule.rule}}">{{rule.rule}}</option>
+									{% endfor %}
+									</select>
 									<input type="email" name="email" class="search_input search_input_1" placeholder="Email"/>
 									<input type="password" class="search_input search_input_2" placeholder="Password" name="password" required="required">
 									<input type="password" class="search_input search_input_2" placeholder="ConfirmPassword" name="confirmpassword" required="required">

@@ -147,7 +147,9 @@ def validate(csv_file, new_file, uploadid, ruleid):
 
    
 def register(request):
-
+	
+	rules = Rules.objects.all()
+	
 	if request.method == 'POST':
 		firstname = request.POST['firstname']
 		lastname = request.POST['lastname']
@@ -179,4 +181,4 @@ def register(request):
 			return redirect('register')
 		return redirect('/')
 	else:
-		return render(request, 'register.html')
+		return render(request, 'register.html', {'rules': rules })
