@@ -1,6 +1,7 @@
 [
    {
       "ruleId":"1",
+	  "rulelabel":"OpenWOs",
       "pattern_name":"Open",
       "pattern_period":"20[0-9]{2}(01JAN|02FEB|03MAR|04APR|05MAY|06JUN|07JUL|08AUG|09SEP|10OCT|11NOV|12DEC)",
       "pattern_sheetName":"open",
@@ -13,6 +14,7 @@
    },
    {
       "ruleId":"2",
+	  "rulelabel":"CreatedWOs",
       "pattern_name":"Created",
       "pattern_period":"20[0-9]{2}(01JAN|02FEB|03MAR|04APR|05MAY|06JUN|07JUL|08AUG|09SEP|10OCT|11NOV|12DEC)",
       "pattern_sheetName":"created",
@@ -25,6 +27,7 @@
    },
    {
       "ruleId":"3",
+	  "rulelabel":"ResolvedWOs",
       "pattern_name":"Resol",
       "pattern_period":"20[0-9]{2}(01JAN|02FEB|03MAR|04APR|05MAY|06JUN|07JUL|08AUG|09SEP|10OCT|11NOV|12DEC)",
       "sheetName":"Resol",
@@ -37,6 +40,7 @@
    },
    {
       "ruleId":"4",
+	  "rulelabel":"Finance_1",
       "pattern_name":"Finance",
       "pattern_period":"(Q1|Q2|Q3|Q4)20[0-9]{2}",
       "sheetName":"Data3",
@@ -49,6 +53,7 @@
    },
    {
       "ruleId":"5",
+	  "rulelabel":"Finance_2",
       "pattern_name":"Finance",
       "pattern_period":"(Q1|Q2|Q3|Q4)20[0-9]{2}",
       "sheetName":"Data1",
@@ -61,6 +66,7 @@
    },
    {
       "ruleId":"6",
+	  "rulelabel":"Finance_3",
       "pattern_name":"Finance",
       "pattern_period":"(Q1|Q2|Q3|Q4)20[0-9]{2}",
       "sheetName":"Data2",
@@ -73,6 +79,7 @@
    },
    {
       "ruleId":"7",
+	  "rulelabel":"Health",
       "pattern_name":"Health",
       "pattern_period":"20[0-9]{2}(01JAN|02FEB|03MAR|04APR|05MAY|06JUN|07JUL|08AUG|09SEP|10OCT|11NOV|12DEC)",
       "sheetName":"Data",
