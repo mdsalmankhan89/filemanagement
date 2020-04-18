@@ -36,7 +36,7 @@ def logout(request):
 	
 def upload(request):
 
-	loglist = []
+	
 	
 	filemetas = FilesData.objects.filter(userid=request.user.id)
 	
@@ -149,6 +149,10 @@ def validate(csv_file, new_file, uploadid, ruleid):
 def register(request):
 	
 	rules = Rules.objects.all()
+	ruleList=[]
+	for rule in rules:
+		RuleLabel = json.loads(rule.rule)
+		ruleList.append(RuleLabel["rulelabel"])
 	
 	if request.method == 'POST':
 		firstname = request.POST['firstname']
@@ -173,7 +177,7 @@ def register(request):
 				return redirect('register')
 			else:
 				user = User.objects.create_user(username=username, password=password, email=email, first_name=firstname, last_name=lastname)
-				user.save();
+				user.save()
 				messages.info(request, 'User Created')
 				return redirect('upload')
 		else:
@@ -181,4 +185,4 @@ def register(request):
 			return redirect('register')
 		return redirect('/')
 	else:
-		return render(request, 'register.html', {'rules': rules })
+		return render(request, 'register.html', {'rules': ruleList })

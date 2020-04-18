@@ -137,7 +137,7 @@
 									<input type="text" class="search_input search_input_1" placeholder="UserName" name="username" required="required">
 									<select name="mdname" size="4" multiple>
 									{% for rule in rules %}
-										<option value="{{rule.rule}}">{{rule.rule}}</option>
+										<option value="{{rule}}">{{rule}}</option>
 									{% endfor %}
 									</select>
 									<input type="email" name="email" class="search_input search_input_1" placeholder="Email"/>
