@@ -50,17 +50,17 @@ def upload(request):
 	if request.method == 'POST':
 		form = FileForm(request.POST, request.FILES)
 		if form.is_valid():
-			handle_files(request.FILES['files'],request.user)
+			ruleid = request.POST.get('ruleid')
+			handle_files(request.FILES['files'],request.user, ruleid)
 			filelist = Files.objects.filter(user_id=request.user)
-			upload_value = request.POST.get('ruleid')
-			print(upload_value)
+			
 			return render(request, 'upload.html', { 'form' : form, 'filelist' : filelist, 'fileloglist' : fileloglist, 'filemetas' : filemetas  })
 	else:
 		form = FileForm()
 	return render(request, 'upload.html', { 'form' : form, 'filelist' : filelist, 'fileloglist' : fileloglist, 'filemetas' : filemetas })
 	
 
-def handle_files(csv_file, user):
+def handle_files(csv_file, user, ruleid):
 
    newfile = Files(files=csv_file,user=user)
    newfile.save()
@@ -68,12 +68,11 @@ def handle_files(csv_file, user):
    entry = FileLogs(uploadid=Files.objects.get(uploadid=newfile.uploadid), files=csv_file, logs='File Loaded new')
    entry.save()
    
-   validate(csv_file, newfile.files.url, newfile.uploadid)
+   validate(csv_file, newfile.files.url, newfile.uploadid, ruleid)
 
-def validate(csv_file, new_file, uploadid):
+def validate(csv_file, new_file, uploadid, ruleid):
 	
 	print(csv_file)
-	filedata = FilesData.objects.get(filename=csv_file) #Need to include user id filter also to fetch rule id
 	#filename = "AP&ISA_202002Feb_Maximo_Resoln_wos_BI_20200310.xlsx"
 	filename = str(csv_file)
 	BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -81,7 +80,7 @@ def validate(csv_file, new_file, uploadid):
 	filepath = os.path.join(FILES_FOLDER,filename)
 	#filepath = "C:\\Users\\salman\\Desktop\\DjangoLearning\\projects\\DataIngestion\\filemanagement\\fileingest\\media\\files\\APISA_202002Feb_Maximo_Resoln_wos_BI_20200310.xlsx"
 		
-	rule = Rules.objects.get(ruleid=filedata.ruleid)
+	rule = Rules.objects.get(ruleid=ruleid)
 	rule = json.loads(rule.rule)
 	
 	#1st check if the file name is correct with pattern name and patter period matching strings

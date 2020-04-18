@@ -3,13 +3,12 @@ from django.contrib.auth.models import User
 from datetime import datetime
 from . import storage
 
-# Create your models here.
 class FilesData(models.Model):
-	fileid = models.AutoField(primary_key=True)
-	filename = models.CharField(max_length=255)
+	filelabel = models.CharField(max_length=255,null=True)
 	userid = models.IntegerField()
 	ruleid = models.IntegerField()
-	
+
+# Create your models here.	
 class Rules(models.Model):
 	ruleid = models.AutoField(primary_key=True)
 	rule = models.TextField()
