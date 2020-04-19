@@ -31,14 +31,14 @@
 							<div class="logo"><a href="index.html">Jones Lang LaSalle</a></div>
 							<nav class="main_nav">
 								<ul class="d-flex flex-row align-items-start justify-content-start">
-									<li class="active"><a href="index.html">Home</a></li>
+									<li class="active"><a href="/">Home</a></li>
 									<li><a href="about.html">About us</a></li>
 									{% if user.is_authenticated %}
 										<li><a href="#">Hello {{user.first_name}}</a></li>
 										<li><a href="upload">upload</a></li>
-										<li><a href="account/logout">Logout</a></li>
+										<li><a href="logout">Logout</a></li>
 									{% else %}
-										<li><a href="account/login">Login</a></li>
+										<li><a href="login">Login</a></li>
 									{% endif %}
 								</ul>
 							</nav>
