@@ -161,6 +161,8 @@ def register(request):
 		email = request.POST['email']
 		password = request.POST['password']
 		confirmpassword = request.POST['confirmpassword']
+		filelabel = [] 
+		filelabel= request.POST.getlist('mdname')	  
 		
 		if username=='':
 			messages.info(request, 'Please provide Username')
@@ -179,7 +181,19 @@ def register(request):
 				user = User.objects.create_user(username=username, password=password, email=email, first_name=firstname, last_name=lastname)
 				user.save()
 				messages.info(request, 'User Created')
-				return redirect('upload')
+		
+				for label in filelabel:
+					currentid = 0
+					
+					for rule in rules:
+						CurrentRule = json.loads(rule.rule)
+						if CurrentRule["rulelabel"] == label:
+							currentid = CurrentRule["ruleId"]
+							
+					mapping = FilesData(filelabel=label, userid=user.id, ruleid=currentid)
+					mapping.save()
+
+				return redirect('register')
 		else:
 			messages.info(request, 'Password Not Matching')
 			return redirect('register')
