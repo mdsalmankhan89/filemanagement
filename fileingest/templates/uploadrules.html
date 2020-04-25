@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UploadRules</title>
+</head>
+<body>
+    <form action="uploadrules" method="POST">
+        {% csrf_token %}
+            <input type="text" placeholder="Rule Label" name="rulelabel" required="required">
+            <input type="text" placeholder="Pattern Name" name="pattern_name" required="required">
+            <input type="text" placeholder="Sheet Name" name="sheetName" required="required">
+            <input type="text" placeholder="Header Row#" name="header" >
+            <input type="submit" value="Add Rule" >
+    </form>
+    
+    {% for message in messages %}
+		<center>{{message}}</h5><center>
+	{% endfor %}
+</body>
+</html>

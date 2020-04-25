@@ -200,3 +200,28 @@ def register(request):
 		return redirect('/')
 	else:
 		return render(request, 'register.html', {'rules': ruleList })
+
+def uploadrules(request):
+	if request.method =="POST":
+		rulelabel = request.POST['rulelabel']
+		pattern_name = request.POST['pattern_name']
+		sheetName = request.POST['sheetName']
+		header = request.POST['header']
+
+		newrule = {}
+		newrule["ruleId"]=8
+		newrule["rulelabel"]=rulelabel
+		newrule["pattern_name"]=pattern_name
+		newrule["sheetName"]=sheetName
+		newrule["header"]=header
+		print(newrule)
+		newrule = json.dumps(newrule)
+		
+		entry = Rules(rule=newrule)
+		entry.save()
+
+		messages.info(request,'Rule Added')
+		return redirect('uploadrules') 
+		 
+	else:
+		return render(request,'uploadrules.html') 
