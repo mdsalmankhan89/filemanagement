@@ -216,7 +216,7 @@ def uploadrules(request):
 		newrule["header"]=header
 		print(newrule)
 		newrule = json.dumps(newrule)
-		
+
 		entry = Rules(rule=newrule)
 		entry.save()
 

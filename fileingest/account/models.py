@@ -7,11 +7,14 @@ class FilesData(models.Model):
 	filelabel = models.CharField(max_length=255,null=True)
 	userid = models.IntegerField()
 	ruleid = models.IntegerField()
+	isactive = models.BooleanField(default = True)
 
 # Create your models here.	
 class Rules(models.Model):
 	ruleid = models.AutoField(primary_key=True)
 	rule = models.TextField()
+	isactive = models.BooleanField(default = True)
+
 
 
 class Files(models.Model):
@@ -19,6 +22,8 @@ class Files(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     files = models.FileField(upload_to='files/', storage = storage.CustomFileSystemStorage() )
     create_dte = models.DateTimeField(default=datetime.now)
+    isactive = models.BooleanField ( default=True )
+
 	
 class FileLogs(models.Model):
 	uploadid = models.ForeignKey(Files, null=False, on_delete=models.CASCADE, related_name='upload_id')
