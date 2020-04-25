@@ -207,6 +207,8 @@ def uploadrules(request):
 		pattern_name = request.POST['pattern_name']
 		sheetName = request.POST['sheetName']
 		header = request.POST['header']
+		comma_columns = request.POST['columnName']
+		columns = comma_columns.split(",")
 
 		newrule = {}
 		newrule["ruleId"]=8
@@ -214,6 +216,7 @@ def uploadrules(request):
 		newrule["pattern_name"]=pattern_name
 		newrule["sheetName"]=sheetName
 		newrule["header"]=header
+		newrule["columns"]=columns
 		print(newrule)
 		newrule = json.dumps(newrule)
 

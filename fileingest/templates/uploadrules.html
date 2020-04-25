@@ -1,17 +1,21 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UploadRules</title>
+	<link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css" />
 </head>
 <body>
     <form action="uploadrules" method="POST">
         {% csrf_token %}
-            <input type="text" placeholder="Rule Label" name="rulelabel" required="required">
-            <input type="text" placeholder="Pattern Name" name="pattern_name" required="required">
-            <input type="text" placeholder="Sheet Name" name="sheetName" required="required">
-            <input type="text" placeholder="Header Row#" name="header" >
+            <input type="text" placeholder="Rule Label" name="rulelabel" required="required"><br>
+            <input type="text" placeholder="Pattern Name" name="pattern_name" required="required"><br>
+            <input type="text" placeholder="Sheet Name" name="sheetName" required="required"><br>
+            <input type="text" placeholder="Header Row#" name="header" ><br>
+			<input type="text" placeholder="Column Names" name="columnName" required="required">
+			<span class="tooltip" data-tooltip="Column Names must be sperated by comma">?</span><br>
             <input type="submit" value="Add Rule" >
     </form>
     
