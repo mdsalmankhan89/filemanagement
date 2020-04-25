@@ -317,6 +317,16 @@ figure {
   .form-group:last-child {
     margin-bottom: 0px; }
 
+.tooltip {
+	position: relative;
+	background: rgba(0,0,0,0.3);
+	padding: 5px 12px;
+	border-radius: 100%;
+	font-size: 20px;
+	cursor: help;
+}
+	
+
 input {
   width: 100%;
   display: block;
