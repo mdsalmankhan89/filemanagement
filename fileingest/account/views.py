@@ -8,7 +8,7 @@ import os
 import openpyxl
 from django.conf import settings
 from django.conf.urls.static import static
-
+from django.core import serializers
 
 from .forms import FileForm
 from .models import Files, FileLogs, FilesData, Rules
@@ -36,8 +36,6 @@ def logout(request):
 	
 def upload(request):
 
-	
-	
 	filemetas = FilesData.objects.filter(userid=request.user.id)
 	
 	try:
@@ -202,6 +200,9 @@ def register(request):
 		return render(request, 'register.html', {'rules': ruleList })
 
 def uploadrules(request):
+	rulesAll = Rules.objects.all()
+
+
 	if request.method =="POST":
 		rulelabel = request.POST['rulelabel']
 		pattern_name = request.POST['pattern_name']
@@ -227,4 +228,5 @@ def uploadrules(request):
 		return redirect('uploadrules') 
 		 
 	else:
-		return render(request,'uploadrules.html') 
+		rulesAllSerialized = serializers.serialize("json", rulesAll)	
+		return render(request,'uploadrules.html',{'rulesAllSerialized':rulesAllSerialized}) 

@@ -2,12 +2,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UploadRules</title>
-	<link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css" />
+    <style>
+        .dropbtn {
+          background-color: #3498DB;
+          color: white;
+          padding: 16px;
+          font-size: 16px;
+          border: none;
+          cursor: pointer;
+        }
+        
+        .dropbtn:hover, .dropbtn:focus {
+          background-color: #2980B9;
+        }
+        
+        .dropdown {
+          position: relative;
+          display: inline-block;
+        }
+        
+        .dropdown-content {
+          display: none;
+          position: absolute;
+          background-color: #f1f1f1;
+          min-width: 160px;
+          overflow: auto;
+          box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+          z-index: 1;
+        }
+        
+        .dropdown-content a {
+          color: black;
+          padding: 12px 16px;
+          text-decoration: none;
+          display: block;
+        }
+        
+        .dropdown a:hover {background-color: #ddd;}
+        
+        .show {display: block;}
+        </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UploadRules</title>
+<link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css" />
+<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"> -->
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 </head>
 <body>
+    <table id="tableRuleId" class="table" style="margin-right:10%;margin-left:10%;width:80%">
+        <thead>
+            <th>Rule Name</th>
+            <th>Add/Edit</th>
+        </thead>
+    </table>
     <form action="uploadrules" method="POST">
         {% csrf_token %}
             <input type="text" placeholder="Rule Label" name="rulelabel" required="required"><br>
@@ -18,9 +70,45 @@
 			<span class="tooltip" data-tooltip="Column Names must be sperated by comma">?</span><br>
             <input type="submit" value="Add Rule" >
     </form>
-    
+
     {% for message in messages %}
 		<center>{{message}}</h5><center>
 	{% endfor %}
-</body>
+
+ 
 </html>
+
+<script>
+
+//$(document).ready(function(){
+    var rule = {{ rulesAllSerialized | safe }};
+                
+    rule.forEach(myFunction);
+    function myFunction(value) {
+        var myjsonrule = value.fields.rule;
+        var p = JSON.parse(myjsonrule)["rulelabel"];
+        var table = document.getElementById("tableRuleId");
+        var rowCount = table.rows.length;
+        var row = table.insertRow(rowCount);
+        row.insertCell(0).innerHTML= p;
+        //row.insertCell(1).innerHTML = '<div class="dropdown"><button onclick="myFunction()" class="dropbtn">Dropdown</button><div id="myDropdown" class="dropdown-content"><a href="#Add">Add</a><a href="#Edit">Edit</a></div> </div>';
+        row.insertCell(1).innerHTML = '<div class = "btn-group"><button type = "button" class = "btn btn-primary dropdown-toggle" data-toggle = "dropdown">Action <span class = "caret"></span></button><ul class = "dropdown-menu" role = "menu"><li><a href = "#">Edit</a></li><li><a href = "#">Delete</a></li></ul></div>';
+    }
+    /*function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+      }
+      window.onclick = function(event) {
+        if (!event.target.matches('.dropbtn')) {
+          var dropdowns = document.getElementsByClassName("dropdown-content");
+          var i;
+          for (i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+              openDropdown.classList.remove('show');
+            }
+          }
+        }
+      }*/
+</script>
+
+
