@@ -2,7 +2,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>
+<title>UploadRules</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="description" content="Travello template project">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="{% static 'styles/bootstrap4/bootstrap.min.css' %}">
+<link href="{% static 'plugins/font-awesome-4.7.0/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/OwlCarousel2-2.2.1/owl.carousel.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/OwlCarousel2-2.2.1/owl.theme.default.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/OwlCarousel2-2.2.1/animate.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'styles/main_styles.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'styles/responsive.css' %}">
+<link href="{% static 'css/datatables.min.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<style>
         .dropbtn {
           background-color: #3498DB;
           color: white;
@@ -41,27 +59,54 @@
         .dropdown a:hover {background-color: #ddd;}
         
         .show {display: block;}
-        </style>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UploadRules</title>
-<link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css" />
+</style>
+
+
+
 <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"> -->
 <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>-->
 </head>
 <body>
      
-    <table id="tableRuleId" class="table" style="margin-right:10%;margin-left:10%;width:80%">
+   <!-- <table id="tableRuleId" class="table" style="margin-right:10%;margin-left:10%;width:80%">
         <thead>
             <th>Rule Name</th>
             <th>Add/Edit</th>
-        </thead>
-         
-    </table>
+        </thead>        
+    </table>-->
+	
+	<div class="home_search_content">
+		<button id="btn-show-all-children" type="button">Expand All</button>
+		<button id="btn-hide-all-children" type="button">Collapse All</button>
+		<hr>
+			<table id="tableRuleId" class="display">
+				<thead>
+					<tr>
+						<th>Rule Name</th>
+						<th>Add/Edit</th>
+						<th class="none">Pattern</th>
+						<th class="none">Pattern Period</th>
+						<th class="none">Pattern Sheet</th>
+						<th class="none">Header</th>
+						<th class="none">Columns</th>
+					</tr>
+				</thead>
+				<tbody id="bodyRuleId">
+										
+													<!--<tr>
+														<td>rule 1</td>
+														<td>edit 1</td>
+														<td>pattern 1</td>
+													</tr>-->
+										
+				</tbody>
+			</table>
+	</div>
+	
     <form action="uploadrules" method="POST" id="formid">
         {% csrf_token %}
             <input type="text" placeholder="Rule Label" name="rulelabel" required="required"><br>
@@ -77,11 +122,24 @@
 		<center>{{message}}</h5><center>
 	{% endfor %}
 
- 
-</html>
-
 <script>
+	$(document).ready(function (){
+    var table = $('#tableRuleId').DataTable({
+        'responsive': true
+    });
 
+    // Handle click on "Expand All" button
+    $('#btn-show-all-children').on('click', function(){
+        // Expand row details
+        table.rows(':not(.parent)').nodes().to$().find('td:first-child').trigger('click');
+    });
+
+    // Handle click on "Collapse All" button
+    $('#btn-hide-all-children').on('click', function(){
+        // Collapse row details
+        table.rows('.parent').nodes().to$().find('td:first-child').trigger('click');
+    });
+	});
 //$(document).ready(function(){
     var rule = {{ rulesAllSerialized | safe }};
                 
@@ -93,25 +151,39 @@
         var values = Object.values(vjson);
         var p = JSON.parse(myjsonrule)["rulelabel"];
         var table = document.getElementById("tableRuleId");
+		var body = document.getElementById("bodyRuleId");
+		//var table1 = document.getElementById("tableRulesInfo");
         //var innerTable = document.getElementById("innerTable");
         var rowCount = table.rows.length;
         var rowFirst = table.insertRow(rowCount);
+		//var rowCount1 = table1.rows.length;
+        //var rowFirst1 = table1.insertRow(rowCount);
+		//rowFirst1.insertCell(0).innerHTML = JSON.parse(myjsonrule)["pattern_name"];
+		//rowFirst1.insertCell(1).innerHTML = JSON.parse(myjsonrule)["header"];
+		
         rowFirst.insertCell(0).innerHTML= p;
-        //row.insertCell(1).innerHTML = '<div class="dropdown"><button onclick="myFunction()" class="dropbtn">Dropdown</button><div id="myDropdown" class="dropdown-content"><a href="#Add">Add</a><a href="#Edit">Edit</a></div> </div>';
-        rowFirst.insertCell(1).innerHTML = '<div class = "btn-group"><button type = "button" class = "btn btn-primary dropdown-toggle" data-toggle = "dropdown">Action <span class = "caret"></span></button><ul class = "dropdown-menu" role = "menu"><li><a href = "#">Edit</a></li><li><a href = "#">Delete</a></li></ul></div>';
+        rowFirst.insertCell(1).innerHTML = '<div class="dropdown"><button onclick="myFunction()" class="dropbtn">Dropdown</button><div id="myDropdown" class="dropdown-content"><a href="#Add">Add</a><a href="#Edit">Edit</a></div> </div>';
+        //rowFirst.insertCell(1).innerHTML = '<div class = "btn-group"><button type = "button" class = "btn btn-primary dropdown-toggle" data-toggle = "dropdown">Action <span class = "caret"></span></button><ul class = "dropdown-menu" role = "menu"><li><a href = "#">Edit</a></li><li><a href = "#">Delete</a></li></ul></div>';
+		rowFirst.insertCell(2).innerHTML = '<div contenteditable="true">'+JSON.parse(myjsonrule)["pattern_name"]+'</div>';
+		rowFirst.insertCell(3).innerHTML = JSON.parse(myjsonrule)["pattern_period"];
+		rowFirst.insertCell(4).innerHTML = JSON.parse(myjsonrule)["pattern_sheetName"];
+		rowFirst.insertCell(5).innerHTML = JSON.parse(myjsonrule)["header"];
+		rowFirst.insertCell(6).innerHTML = JSON.parse(myjsonrule)["columns"];
+		
+		body.appendChild(rowFirst);
         
-        var rowSecound = table.insertRow(rowCount+1);
-        vkeys.forEach(createTable);
-        var z ;
-        function createTable(vkeys){
-            var innerTable = document.createElement("TABLE");
-            var rc = innerTable.rows.rowCount;
-            var row = innerTable.insertRow(rc);
-            row.insertCell(0).innerHTML = keys;
-            row.insertCell(1).innerHTML = values;
-            z = innerTable;
-        }
-        rowSecound.insertCell(0).innerHTML= z;
+        //var rowSecound = table.insertRow(rowCount+1);
+        //vkeys.forEach(createTable);
+        //var z ;
+        //function createTable(vkeys){
+          //  var innerTable = document.createElement("TABLE");
+           // var rc = innerTable.rows.rowCount;
+            //var row = innerTable.insertRow(rc);
+            //row.insertCell(0).innerHTML = keys;
+            //row.insertCell(1).innerHTML = values;
+            //z = innerTable;
+        //}
+        //rowSecound.insertCell(0).innerHTML= z;
         
         
         //var getKeyValue = GetKeyValue(p);
@@ -135,5 +207,19 @@
         }
       }*/
 </script>
+<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'styles/bootstrap4/popper.js' %}"></script>
+<script src="{% static 'styles/bootstrap4/bootstrap.min.js' %}"></script>
+<script src="{% static 'plugins/OwlCarousel2-2.2.1/owl.carousel.js' %}"></script>
+<script src="{% static 'plugins/Isotope/isotope.pkgd.min.js' %}"></script>
+<script src="{% static 'plugins/scrollTo/jquery.scrollTo.min.js' %}"></script>
+<script src="{% static 'plugins/easing/easing.js' %}"></script>
+<script src="{% static 'plugins/parallax-js-master/parallax.min.js' %}"></script>
+<script src="{% static 'js/custom.js' %}"></script>
+<script src="{% static 'js/datatables.min.js' %}"></script>
+</body> 
+</html>
+
+
 
 
