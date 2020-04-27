@@ -54,13 +54,15 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 </head>
 <body>
+     
     <table id="tableRuleId" class="table" style="margin-right:10%;margin-left:10%;width:80%">
         <thead>
             <th>Rule Name</th>
             <th>Add/Edit</th>
         </thead>
+         
     </table>
-    <form action="uploadrules" method="POST">
+    <form action="uploadrules" method="POST" id="formid">
         {% csrf_token %}
             <input type="text" placeholder="Rule Label" name="rulelabel" required="required"><br>
             <input type="text" placeholder="Pattern Name" name="pattern_name" required="required"><br>
@@ -86,14 +88,37 @@
     rule.forEach(myFunction);
     function myFunction(value) {
         var myjsonrule = value.fields.rule;
+        var vjson = JSON.parse(myjsonrule);
+        var vkeys = Object.keys(vjson);
+        var values = Object.values(vjson);
         var p = JSON.parse(myjsonrule)["rulelabel"];
         var table = document.getElementById("tableRuleId");
+        //var innerTable = document.getElementById("innerTable");
         var rowCount = table.rows.length;
-        var row = table.insertRow(rowCount);
-        row.insertCell(0).innerHTML= p;
+        var rowFirst = table.insertRow(rowCount);
+        rowFirst.insertCell(0).innerHTML= p;
         //row.insertCell(1).innerHTML = '<div class="dropdown"><button onclick="myFunction()" class="dropbtn">Dropdown</button><div id="myDropdown" class="dropdown-content"><a href="#Add">Add</a><a href="#Edit">Edit</a></div> </div>';
-        row.insertCell(1).innerHTML = '<div class = "btn-group"><button type = "button" class = "btn btn-primary dropdown-toggle" data-toggle = "dropdown">Action <span class = "caret"></span></button><ul class = "dropdown-menu" role = "menu"><li><a href = "#">Edit</a></li><li><a href = "#">Delete</a></li></ul></div>';
+        rowFirst.insertCell(1).innerHTML = '<div class = "btn-group"><button type = "button" class = "btn btn-primary dropdown-toggle" data-toggle = "dropdown">Action <span class = "caret"></span></button><ul class = "dropdown-menu" role = "menu"><li><a href = "#">Edit</a></li><li><a href = "#">Delete</a></li></ul></div>';
+        
+        var rowSecound = table.insertRow(rowCount+1);
+        vkeys.forEach(createTable);
+        var z ;
+        function createTable(vkeys){
+            var innerTable = document.createElement("TABLE");
+            var rc = innerTable.rows.rowCount;
+            var row = innerTable.insertRow(rc);
+            row.insertCell(0).innerHTML = keys;
+            row.insertCell(1).innerHTML = values;
+            z = innerTable;
+        }
+        rowSecound.insertCell(0).innerHTML= z;
+        
+        
+        //var getKeyValue = GetKeyValue(p);
+
     }
+
+    
     /*function myFunction() {
         document.getElementById("myDropdown").classList.toggle("show");
       }
