@@ -9,6 +9,7 @@ import openpyxl
 from django.conf import settings
 from django.conf.urls.static import static
 from django.core import serializers
+from django.views.decorators.csrf import csrf_exempt
 
 from .forms import FileForm
 from .models import Files, FileLogs, FilesData, Rules
@@ -230,3 +231,32 @@ def uploadrules(request):
 	else:
 		rulesAllSerialized = serializers.serialize("json", rulesAll)	
 		return render(request,'uploadrules.html',{'rulesAllSerialized':rulesAllSerialized}) 
+
+@csrf_exempt
+def update_rules(request):
+	if request.method == 'POST':
+	
+		rules = Rules.objects.filter(rulelabel=request.POST['rulelabel'])
+		rulelabel = request.POST['rulelabel']
+		pattern_name = request.POST['updtpname']
+		period = request.POST['updtpperiod']
+		sheetName = request.POST['updtpsheet']
+		header = request.POST['updtpheader']
+		comma_columns = request.POST['updtpcolumns']
+		columns = comma_columns.split(",")
+        
+		newrule = {}
+		newrule["rulelabel"]=rulelabel
+		newrule["pattern_name"]=pattern_name
+		newrule["pattern_period"]=period
+		newrule["pattern_sheetName"]=sheetName
+		newrule["header"]=header
+		newrule["columns"]=columns
+		
+		newrule = json.dumps(newrule)
+
+		rules.rule = newrule
+		rules.save()
+
+		messages.info(request,'Rule Updated')
+		return redirect('uploadrules') 

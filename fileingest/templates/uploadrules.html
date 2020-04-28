@@ -60,28 +60,9 @@
         
         .show {display: block;}
 </style>
-
-
-
-<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"> -->
-<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> -->
-<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>-->
 </head>
 <body>
-     
-   <!-- <table id="tableRuleId" class="table" style="margin-right:10%;margin-left:10%;width:80%">
-        <thead>
-            <th>Rule Name</th>
-            <th>Add/Edit</th>
-        </thead>        
-    </table>-->
-	
 	<div class="home_search_content">
-		<button id="btn-show-all-children" type="button">Expand All</button>
-		<button id="btn-hide-all-children" type="button">Collapse All</button>
 		<hr>
 			<table id="tableRuleId" class="display">
 				<thead>
@@ -96,13 +77,6 @@
 					</tr>
 				</thead>
 				<tbody id="bodyRuleId">
-										
-													<!--<tr>
-														<td>rule 1</td>
-														<td>edit 1</td>
-														<td>pattern 1</td>
-													</tr>-->
-										
 				</tbody>
 			</table>
 	</div>
@@ -123,34 +97,27 @@
 	{% endfor %}
 
 <script>
-	$(document).ready(function (){
+
+$(document).ready(function ()
+{
     var table = $('#tableRuleId').DataTable({
         'responsive': true
     });
+});
 
-    // Handle click on "Expand All" button
-    $('#btn-show-all-children').on('click', function(){
-        // Expand row details
-        table.rows(':not(.parent)').nodes().to$().find('td:first-child').trigger('click');
-    });
-
-    // Handle click on "Collapse All" button
-    $('#btn-hide-all-children').on('click', function(){
-        // Collapse row details
-        table.rows('.parent').nodes().to$().find('td:first-child').trigger('click');
-    });
-	});
-//$(document).ready(function(){
     var rule = {{ rulesAllSerialized | safe }};
     var itr = 0;
+	var rulelabel;
 	
     rule.forEach(myFunction);
-    function myFunction(value) {
+    function myFunction(value) 
+	{
 		itr += 1;
         var myjsonrule = value.fields.rule;
         var vjson = JSON.parse(myjsonrule);
         var vkeys = Object.keys(vjson);
         var values = Object.values(vjson);
+		var rulelabel = JSON.parse(myjsonrule)["rulelabel"];
         var p = JSON.parse(myjsonrule)["rulelabel"];
         var table = document.getElementById("tableRuleId");
 		var body = document.getElementById("bodyRuleId");
@@ -160,8 +127,7 @@
 		
         rowFirst.insertCell(0).innerHTML= p;
         rowFirst.insertCell(1).innerHTML = 
-		'<button class="btn" id="save'+itr+'" onclick="add_row('+itr+');" disabled>Save Content</button></div>';
-        //rowFirst.insertCell(1).innerHTML = '<div class = "btn-group"><button type = "button" class = "btn btn-primary dropdown-toggle" data-toggle = "dropdown">Action <span class = "caret"></span></button><ul class = "dropdown-menu" role = "menu"><li><a href = "#">Edit</a></li><li><a href = "#">Delete</a></li></ul></div>';
+		'<button class="btn" id="save'+itr+'" onclick="add_row('+itr+');">Save Content</button></div>';
 		rowFirst.insertCell(2).innerHTML = '<div id="container" class="container"><div contenteditable="true" id="patternname'+itr+'">'+JSON.parse(myjsonrule)["pattern_name"]+'</div></div>';
 		rowFirst.insertCell(3).innerHTML = '<div id="container" class="container"><div contenteditable="true" id="patternperiod'+itr+'">'+JSON.parse(myjsonrule)["pattern_period"]+'</div></div>';
 		rowFirst.insertCell(4).innerHTML = '<div id="container" class="container"><div contenteditable="true" id="patternsheet'+itr+'">'+JSON.parse(myjsonrule)["pattern_sheetName"]+'</div></div>';
@@ -172,42 +138,53 @@
 		
     }
 	
-	var i, pname, pperiod, psheet, pheader, pcolumns; 
-	var edtElmtpattern = [];
-	var edtElmtpatternperiod = [];
-	var edtElmtpatternsheet = [];
-	var edtElmtpatternheader = [];
-	var edtElmtcolumns = [];
+	var i, j, pname, pperiod, psheet, pheader, pcolumns, updtpname, updtpperiod, updtpsheet, updtpheader, updtpcolumns; 
+	var edtElmtpname = [];
+	var edtElmtpperiod = [];
+	var edtElmtpsheet = [];
+	var edtElmtpheader = [];
+	var edtElmtpcolumns = [];
 	
 	for (i = 0; i < itr; i++) 
 	{	
-		pname = document.getElementById("patternname"+i+1);
-		edtElmtpattern[i] = pname.innerHTML;
-		pperiod = document.getElementById("patternperiod"+i+1);
-		edtElmtpatternperiod[i] = pperiod.innerHTML;
-		psheet = document.getElementById("patternsheet"+i+1);
-		edtElmtpatternsheet[i] = psheet.innerHTML;
-		pheader = document.getElementById("patternheader"+i+1);
-		edtElmtpatternheader[i] = pheader.innerHTML;
-		pcolumns = document.getElementById("columns"+i+1);
-		edtElmtcolumns[i] = pcolumns.innerHTML;
+		edtElmtpname[i] = document.getElementById("patternname"+(i+1)).innerHTML;
+		edtElmtpperiod[i] = document.getElementById("patternperiod"+(i+1)).innerHTML;
+		edtElmtpsheet[i] = document.getElementById("patternsheet"+(i+1)).innerHTML;
+		edtElmtpheader[i] = document.getElementById("patternheader"+(i+1)).innerHTML;
+		edtElmtpcolumns[i] = document.getElementById("columns"+(i+1)).innerHTML;
 	}
 
 	function add_row(no)
 	{
+		j = no-1;
+		updtpname = document.getElementById("patternname"+no).innerHTML;
+		updtpperiod = document.getElementById("patternperiod"+no).innerHTML;
+		updtpsheet = document.getElementById("patternsheet"+no).innerHTML;
+		updtpheader = document.getElementById("patternheader"+no).innerHTML;
+		updtpcolumns = document.getElementById("columns"+no).innerHTML;
 		
-		updatedContent = getById('patternname').innerHTML;
+		if ( updtpname !== edtElmtpname[j] || updtpperiod !== edtElmtpperiod[j] || updtpsheet !== edtElmtpsheet[j] || updtpheader !== edtElmtpheader[j] || updtpcolumns !== edtElmtpcolumns[j]) 
+		{
 		
-		if ( updatedContent !== originalContent ) {
-			  var newvalue = updatedContent;
-			  undoBtn.disabled = false;
-			}
-
-		document.getElementById("new_name").value="";
-		document.getElementById("new_country").value="";
-		document.getElementById("new_age").value="";
+			  document.getElementById("patternname"+no).innerHTML = updtpname;
+			  document.getElementById("patternperiod"+no).innerHTML = updtpperiod;
+			  document.getElementById("patternsheet"+no).innerHTML = updtpsheet;
+			  document.getElementById("patternheader"+no).innerHTML = updtpheader;
+			  document.getElementById("columns"+no).innerHTML = updtpcolumns;
+			  
+		}
+		
+		$.ajax
+		({
+			url: 'update_rules',
+			data: {'rulelabel': rulelabel, 'updtpname': updtpname, 'updtpperiod': updtpperiod, 'updtpsheet': updtpsheet, 'updtpheader': updtpheader, 'updtpcolumns': updtpcolumns},
+			type: 'POST'
+		}).done(function(response)
+		{
+			console.log(response);
+		});
 	}
-		
+	
 </script>
 <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
 <script src="{% static 'styles/bootstrap4/popper.js' %}"></script>
