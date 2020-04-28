@@ -142,9 +142,11 @@
 	});
 //$(document).ready(function(){
     var rule = {{ rulesAllSerialized | safe }};
-                
+    var itr = 0;
+	
     rule.forEach(myFunction);
     function myFunction(value) {
+		itr += 1;
         var myjsonrule = value.fields.rule;
         var vjson = JSON.parse(myjsonrule);
         var vkeys = Object.keys(vjson);
@@ -152,60 +154,60 @@
         var p = JSON.parse(myjsonrule)["rulelabel"];
         var table = document.getElementById("tableRuleId");
 		var body = document.getElementById("bodyRuleId");
-		//var table1 = document.getElementById("tableRulesInfo");
-        //var innerTable = document.getElementById("innerTable");
+		
         var rowCount = table.rows.length;
         var rowFirst = table.insertRow(rowCount);
-		//var rowCount1 = table1.rows.length;
-        //var rowFirst1 = table1.insertRow(rowCount);
-		//rowFirst1.insertCell(0).innerHTML = JSON.parse(myjsonrule)["pattern_name"];
-		//rowFirst1.insertCell(1).innerHTML = JSON.parse(myjsonrule)["header"];
 		
         rowFirst.insertCell(0).innerHTML= p;
-        rowFirst.insertCell(1).innerHTML = '<div class="dropdown"><button onclick="myFunction()" class="dropbtn">Dropdown</button><div id="myDropdown" class="dropdown-content"><a href="#Add">Add</a><a href="#Edit">Edit</a></div> </div>';
+        rowFirst.insertCell(1).innerHTML = 
+		'<button class="btn" id="save'+itr+'" onclick="add_row('+itr+');" disabled>Save Content</button></div>';
         //rowFirst.insertCell(1).innerHTML = '<div class = "btn-group"><button type = "button" class = "btn btn-primary dropdown-toggle" data-toggle = "dropdown">Action <span class = "caret"></span></button><ul class = "dropdown-menu" role = "menu"><li><a href = "#">Edit</a></li><li><a href = "#">Delete</a></li></ul></div>';
-		rowFirst.insertCell(2).innerHTML = '<div contenteditable="true">'+JSON.parse(myjsonrule)["pattern_name"]+'</div>';
-		rowFirst.insertCell(3).innerHTML = JSON.parse(myjsonrule)["pattern_period"];
-		rowFirst.insertCell(4).innerHTML = JSON.parse(myjsonrule)["pattern_sheetName"];
-		rowFirst.insertCell(5).innerHTML = JSON.parse(myjsonrule)["header"];
-		rowFirst.insertCell(6).innerHTML = JSON.parse(myjsonrule)["columns"];
+		rowFirst.insertCell(2).innerHTML = '<div id="container" class="container"><div contenteditable="true" id="patternname'+itr+'">'+JSON.parse(myjsonrule)["pattern_name"]+'</div></div>';
+		rowFirst.insertCell(3).innerHTML = '<div id="container" class="container"><div contenteditable="true" id="patternperiod'+itr+'">'+JSON.parse(myjsonrule)["pattern_period"]+'</div></div>';
+		rowFirst.insertCell(4).innerHTML = '<div id="container" class="container"><div contenteditable="true" id="patternsheet'+itr+'">'+JSON.parse(myjsonrule)["pattern_sheetName"]+'</div></div>';
+		rowFirst.insertCell(5).innerHTML = '<div id="container" class="container"><div contenteditable="true" id="patternheader'+itr+'">'+JSON.parse(myjsonrule)["header"]+'</div></div>';
+		rowFirst.insertCell(6).innerHTML = '<div id="container" class="container"><div contenteditable="true" id="columns'+itr+'">'+JSON.parse(myjsonrule)["columns"]+'</div></div>';
 		
 		body.appendChild(rowFirst);
-        
-        //var rowSecound = table.insertRow(rowCount+1);
-        //vkeys.forEach(createTable);
-        //var z ;
-        //function createTable(vkeys){
-          //  var innerTable = document.createElement("TABLE");
-           // var rc = innerTable.rows.rowCount;
-            //var row = innerTable.insertRow(rc);
-            //row.insertCell(0).innerHTML = keys;
-            //row.insertCell(1).innerHTML = values;
-            //z = innerTable;
-        //}
-        //rowSecound.insertCell(0).innerHTML= z;
-        
-        
-        //var getKeyValue = GetKeyValue(p);
-
+		
     }
+	
+	var i, pname, pperiod, psheet, pheader, pcolumns; 
+	var edtElmtpattern = [];
+	var edtElmtpatternperiod = [];
+	var edtElmtpatternsheet = [];
+	var edtElmtpatternheader = [];
+	var edtElmtcolumns = [];
+	
+	for (i = 0; i < itr; i++) 
+	{	
+		pname = document.getElementById("patternname"+i+1);
+		edtElmtpattern[i] = pname.innerHTML;
+		pperiod = document.getElementById("patternperiod"+i+1);
+		edtElmtpatternperiod[i] = pperiod.innerHTML;
+		psheet = document.getElementById("patternsheet"+i+1);
+		edtElmtpatternsheet[i] = psheet.innerHTML;
+		pheader = document.getElementById("patternheader"+i+1);
+		edtElmtpatternheader[i] = pheader.innerHTML;
+		pcolumns = document.getElementById("columns"+i+1);
+		edtElmtcolumns[i] = pcolumns.innerHTML;
+	}
 
-    
-    /*function myFunction() {
-        document.getElementById("myDropdown").classList.toggle("show");
-      }
-      window.onclick = function(event) {
-        if (!event.target.matches('.dropbtn')) {
-          var dropdowns = document.getElementsByClassName("dropdown-content");
-          var i;
-          for (i = 0; i < dropdowns.length; i++) {
-            var openDropdown = dropdowns[i];
-            if (openDropdown.classList.contains('show')) {
-              openDropdown.classList.remove('show');
-            }
-          }
-        }
-      }*/
+	function add_row(no)
+	{
+		
+		updatedContent = getById('patternname').innerHTML;
+		
+		if ( updatedContent !== originalContent ) {
+			  var newvalue = updatedContent;
+			  undoBtn.disabled = false;
+			}
+
+		document.getElementById("new_name").value="";
+		document.getElementById("new_country").value="";
+		document.getElementById("new_age").value="";
+	}
+		
 </script>
 <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
 <script src="{% static 'styles/bootstrap4/popper.js' %}"></script>
