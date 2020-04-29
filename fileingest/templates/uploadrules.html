@@ -117,7 +117,8 @@ $(document).ready(function ()
         var vjson = JSON.parse(myjsonrule);
         var vkeys = Object.keys(vjson);
         var values = Object.values(vjson);
-		var rulelabel = JSON.parse(myjsonrule)["rulelabel"];
+        var rulelabel = JSON.parse(myjsonrule)["rulelabel"];
+        var ruleid =  value.pk;
         var p = JSON.parse(myjsonrule)["rulelabel"];
         var table = document.getElementById("tableRuleId");
 		var body = document.getElementById("bodyRuleId");
@@ -126,8 +127,7 @@ $(document).ready(function ()
         var rowFirst = table.insertRow(rowCount);
 		
         rowFirst.insertCell(0).innerHTML= p;
-        rowFirst.insertCell(1).innerHTML = 
-		'<button class="btn" id="save'+itr+'" onclick="add_row('+itr+');">Save Content</button></div>';
+        rowFirst.insertCell(1).innerHTML = 	'<button class="btn" id="save'+itr+'" onclick="add_row('+itr+','+ruleid+');">Save Content</button></div>';
 		rowFirst.insertCell(2).innerHTML = '<div id="container" class="container"><div contenteditable="true" id="patternname'+itr+'">'+JSON.parse(myjsonrule)["pattern_name"]+'</div></div>';
 		rowFirst.insertCell(3).innerHTML = '<div id="container" class="container"><div contenteditable="true" id="patternperiod'+itr+'">'+JSON.parse(myjsonrule)["pattern_period"]+'</div></div>';
 		rowFirst.insertCell(4).innerHTML = '<div id="container" class="container"><div contenteditable="true" id="patternsheet'+itr+'">'+JSON.parse(myjsonrule)["pattern_sheetName"]+'</div></div>';
@@ -154,7 +154,7 @@ $(document).ready(function ()
 		edtElmtpcolumns[i] = document.getElementById("columns"+(i+1)).innerHTML;
 	}
 
-	function add_row(no)
+	function add_row(no,ruleid)
 	{
 		j = no-1;
 		updtpname = document.getElementById("patternname"+no).innerHTML;
@@ -177,7 +177,7 @@ $(document).ready(function ()
 		$.ajax
 		({
 			url: 'update_rules',
-			data: {'rulelabel': rulelabel, 'updtpname': updtpname, 'updtpperiod': updtpperiod, 'updtpsheet': updtpsheet, 'updtpheader': updtpheader, 'updtpcolumns': updtpcolumns},
+			data: {'ruleid':ruleid,'rulelabel': rulelabel, 'updtpname': updtpname, 'updtpperiod': updtpperiod, 'updtpsheet': updtpsheet, 'updtpheader': updtpheader, 'updtpcolumns': updtpcolumns},
 			type: 'POST'
 		}).done(function(response)
 		{

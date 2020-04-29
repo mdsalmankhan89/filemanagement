@@ -235,14 +235,17 @@ def uploadrules(request):
 @csrf_exempt
 def update_rules(request):
 	if request.method == 'POST':
-	
-		rules = Rules.objects.filter(rulelabel=request.POST['rulelabel'])
-		rulelabel = request.POST['rulelabel']
-		pattern_name = request.POST['updtpname']
-		period = request.POST['updtpperiod']
-		sheetName = request.POST['updtpsheet']
-		header = request.POST['updtpheader']
-		comma_columns = request.POST['updtpcolumns']
+
+		
+		rules = Rules.objects.filter(ruleid=request.POST.get('ruleid'))
+		
+		ruleid= request.POST.get('ruleid')
+		rulelabel = request.POST.get('rulelabel')
+		pattern_name = request.POST.get('updtpname')
+		period = request.POST.get('updtpperiod')
+		sheetName = request.POST.get('updtpsheet')
+		header = request.POST.get('updtpheader')
+		comma_columns = request.POST.get('updtpcolumns')
 		columns = comma_columns.split(",")
         
 		newrule = {}
@@ -254,8 +257,13 @@ def update_rules(request):
 		newrule["columns"]=columns
 		
 		newrule = json.dumps(newrule)
+		print("##############")
+		print(newrule)
+		print(ruleid)
+		print("##############")
 
 		rules.rule = newrule
+		rules.rule
 		rules.save()
 
 		messages.info(request,'Rule Updated')
