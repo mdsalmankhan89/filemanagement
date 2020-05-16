@@ -14,6 +14,9 @@ from django.views.decorators.csrf import csrf_exempt
 from .forms import FileForm
 from .models import Files, FileLogs, FilesData, Rules
 
+import boto3
+from botocore.exceptions import NoCredentialsError
+
 # Create your views here.
 def login(request):
 	if request.method == 'POST':
@@ -115,6 +118,9 @@ def validate(csv_file, new_file, uploadid, ruleid):
 						else:
 							entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='All validations Successful. Ready to process.')
 							entry.save()
+							uploadtordbms(filepath)
+							entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='Uploaded to aws')
+							entry.save() 
 						
 					else:
 						no_of_rows = xl_sheet.max_row
@@ -132,6 +138,9 @@ def validate(csv_file, new_file, uploadid, ruleid):
 								entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs=('Header found at row number: '+ str(counter)))
 								entry.save()
 								entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='All validations Successful. Ready to process.')
+								entry.save()
+								uploadtordbms(filepath)
+								entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='Uploaded to aws')
 								entry.save() 
 								break
 						if counter > 50:
@@ -144,7 +153,25 @@ def validate(csv_file, new_file, uploadid, ruleid):
 		entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='File Name Validation : Failed')
 		entry.save()
 
-   
+def uploadtordbms(filepath):
+	ACCESS_KEY = 'AKIAJ2YIY2GG64RZMZOA' 
+	SECRET_KEY = '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'
+	local_file = filepath
+	bucket_name = 'myawsgluesrcbucket'
+	s3_file_name = os.path.basename(local_file)
+
+	s3 = boto3.client('s3', aws_access_key_id=ACCESS_KEY,aws_secret_access_key=SECRET_KEY)
+	try:
+		s3.upload_file(local_file, bucket_name, s3_file_name)
+		print("Upload Successful")
+		return True
+	except FileNotFoundError:
+		print("The file was not found")
+		return False
+	except NoCredentialsError:
+		print("Credentials not available")
+		return False
+
 def register(request):
 	
 	rules = Rules.objects.all()

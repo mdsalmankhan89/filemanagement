@@ -1,0 +1,8 @@
+UserId,RuleId,ModuleLable
+1,1,OpenWOs
+1,2,CreatedWOs
+1,3,ResolvedWOs
+2,4,Finance_1
+2,5,Finance_2
+2,6,Finance_3
+3,7,Health
