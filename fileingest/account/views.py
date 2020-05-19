@@ -10,9 +10,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
-
+import pandas as pd
 from .forms import FileForm
 from .models import Files, FileLogs, FilesData, Rules
+
+import boto3
+from botocore.exceptions import NoCredentialsError
 
 # Create your views here.
 def login(request):
@@ -113,14 +116,26 @@ def validate(csv_file, new_file, uploadid, ruleid):
 							entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs=('All expected Columns not present in the Sheet: ' + sheetname))
 							entry.save()
 						else:
+							col_offset = 0
+							for val in columns:
+								if val is None:
+									col_offset += 1
 							entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='All validations Successful. Ready to process.')
 							entry.save()
+
+							xl_sheet.delete_cols(1, col_offset)
+							xl_sheet.delete_rows(1,(header-1))
+							book.save(filepath)
+							exceltocsv(filepath,FILES_FOLDER)
+							entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='Uploaded to aws')
+							entry.save() 
 						
 					else:
 						no_of_rows = xl_sheet.max_row
 						#searching top 50 rows for headers
 						counter = 1
 						while counter < no_of_rows:
+							columns=[]
 							for cell in xl_sheet[counter]: 
 								columns.append(cell.value)
 							if [item for item in rule["columns"] if item not in columns]:
@@ -129,9 +144,20 @@ def validate(csv_file, new_file, uploadid, ruleid):
 									break
 								continue
 							else:
+								col_offset = 0
+								for val in columns:
+									if val is None:
+										col_offset += 1
 								entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs=('Header found at row number: '+ str(counter)))
 								entry.save()
 								entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='All validations Successful. Ready to process.')
+								entry.save()
+
+								xl_sheet.delete_cols(1, col_offset)
+								xl_sheet.delete_rows(1,(counter-1))
+								book.save(filepath)
+								exceltocsv(filepath,FILES_FOLDER)
+								entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='Uploaded to aws')
 								entry.save() 
 								break
 						if counter > 50:
@@ -140,11 +166,43 @@ def validate(csv_file, new_file, uploadid, ruleid):
 		if sheet_found == 0:
 			entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs=('Sheet Name "' + sheetname+ '" Validation : Failed. Expected Sheet Not Found.'))
 			entry.save()
+		
+		
 	else:
 		entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='File Name Validation : Failed')
 		entry.save()
 
-   
+def exceltocsv(filepath,FILES_FOLDER):
+	df = pd.read_excel(filepath, sheet_name=None)
+	somevar = FILES_FOLDER
+	csvlist = []
+	for key, value in df.items():
+		df[key].to_csv('%s%s.csv' %(somevar ,key),index =None, header= True)	 
+		csvlist.append('%s%s.csv' %(somevar ,key))
+		uploadtordbms(csvlist)
+ 
+
+def uploadtordbms(csvlist):
+	ACCESS_KEY = 'AKIAJ2YIY2GG64RZMZOA' 
+	SECRET_KEY = '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'
+	for filepath in csvlist:
+		
+		local_file = filepath
+		bucket_name = 'myawsgluesrcbucket'
+		s3_file_name = os.path.basename(local_file)
+
+		s3 = boto3.client('s3', aws_access_key_id=ACCESS_KEY,aws_secret_access_key=SECRET_KEY)
+		try:
+			s3.upload_file(local_file, bucket_name, s3_file_name)
+			print("Upload Successful")
+			return True
+		except FileNotFoundError:
+			print("The file was not found")
+			return False
+		except NoCredentialsError:
+			print("Credentials not available")
+			return False
+
 def register(request):
 	
 	rules = Rules.objects.all()
