@@ -1,0 +1,23 @@
+pip install awscli
+
+C:\GITHUB\filemanagement>aws
+
+C:\GITHUB\filemanagement>aws configure
+AWS Access Key ID [None]: AKIAJ2YIY2GG64RZMZOA
+AWS Secret Access Key [None]: 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
+Default region name [None]: us-east-2
+Default output format [None]:
+
+C:\GITHUB\filemanagement>aws s3 cp AWSCLI_Access.txt s3://myawsgluesrcbucket
+upload: .\AWSCLI_Access.txt to s3://myawsgluesrcbucket/AWSCLI_Access.txt
+
+C:\GITHUB\filemanagement>
+
+Access Key ID:
+AKIAJ2YIY2GG64RZMZOA
+Secret Access Key:
+cUjw31H3TfTbEaf+kGQCz4GPnuGy2SLc9oxeXfib
+
+us-east-2
+
+48412
