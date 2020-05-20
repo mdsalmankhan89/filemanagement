@@ -1,0 +1,28 @@
+2 users 
+
+user 1 : 
+2 excel 
+
+Maximo : OpenWO : Excel #1 : 1 sheetA, colc,colG,colK fixed header, fixed column
+Finance : Excel #2 : 2 sheet 
+            sheetA : colA,colB,ColC -> fixed header/column ( other than header <> 1,column <> 1)
+            SheetB : ColD,colE,colF -> header/column : unknown
+
+user 2: 
+
+Maximo :closedWO : Excel #3 :  sheetA colc,colG,colK fixed header, fixed column
+                         sheetB colc,colG,colK fixed header, fixed column
+
+Health&Safety Excel #4 : 3 sheets
+            sheetA : colA,colB,ColC,colL,colR -> header/column : unknown    
+            sheetB : colA,colB,ColC ->  header/column : unknown
+            SheetC : ColD,colE,colF -> header/column : unknown
+
+Period_pattern - Month/Year : QTR/Year
+
+S3 ->
+3 folder 
+  Maximo - 2 subfolder [ OpenWO - 1 csvs ] [closedWO 2 csv]
+  Finance - 2 csv , no subfolder
+  Health&Safety - 3 csv , no subfolder
+
