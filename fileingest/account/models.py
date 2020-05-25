@@ -9,12 +9,12 @@ class FilesData(models.Model):
 	ruleid = models.IntegerField()
 	isactive = models.BooleanField(default = True)
 
-# Create your models here.	
+# Create your models here.
 class Rules(models.Model):
 	ruleid = models.AutoField(primary_key=True)
 	rule = models.TextField()
+	rulemodule = models.TextField()
 	isactive = models.BooleanField(default = True)
-
 
 
 class Files(models.Model):

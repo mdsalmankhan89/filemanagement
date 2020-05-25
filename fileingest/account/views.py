@@ -209,7 +209,9 @@ def register(request):
 	ruleList=[]
 	for rule in rules:
 		RuleLabel = json.loads(rule.rule)
-		ruleList.append(RuleLabel["rulelabel"])
+		ruleList.append(RuleLabel["module"])
+	
+	ruleList = list(set(ruleList))
 	
 	if request.method == 'POST':
 		firstname = request.POST['firstname']
@@ -218,7 +220,7 @@ def register(request):
 		email = request.POST['email']
 		password = request.POST['password']
 		confirmpassword = request.POST['confirmpassword']
-		filelabel = [] 
+		filelabel = []
 		filelabel= request.POST.getlist('mdname')	  
 		
 		if username=='':
@@ -240,15 +242,16 @@ def register(request):
 				messages.info(request, 'User Created')
 		
 				for label in filelabel:
-					currentid = 0
+					currentid = []
 					
 					for rule in rules:
 						CurrentRule = json.loads(rule.rule)
-						if CurrentRule["rulelabel"] == label:
-							currentid = CurrentRule["ruleId"]
-							
-					mapping = FilesData(filelabel=label, userid=user.id, ruleid=currentid)
-					mapping.save()
+						if CurrentRule["module"] == label:
+							currentid.append(rule.ruleid)
+					
+					for rid in currentid:
+						mapping = FilesData(filelabel=label, userid=user.id, ruleid=rid)
+						mapping.save()
 
 				return redirect('register')
 		else:
