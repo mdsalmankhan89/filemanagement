@@ -13,6 +13,8 @@ from django.views.decorators.csrf import csrf_exempt
 import pandas as pd
 from .forms import FileForm
 from .models import Files, FileLogs, FilesData, Rules
+import psycopg2
+import xlrd
 
 import boto3
 from botocore.exceptions import NoCredentialsError
@@ -40,7 +42,8 @@ def logout(request):
 	
 def upload(request):
 
-	filemetas = FilesData.objects.filter(userid=request.user.id)
+	#filemetas = FilesData.objects.filter(userid=request.user.id).values('filelabel')
+	filemetas = FilesData.objects.filter(userid=request.user.id).values('filelabel').distinct()
 	
 	try:
 		filelist = Files.objects.filter(user_id=request.user)
@@ -52,8 +55,8 @@ def upload(request):
 	if request.method == 'POST':
 		form = FileForm(request.POST, request.FILES)
 		if form.is_valid():
-			ruleid = request.POST.get('ruleid')
-			handle_files(request.FILES['files'],request.user, ruleid)
+			module = request.POST.get('module')
+			handle_files(request.FILES['files'],request.user, module)
 			filelist = Files.objects.filter(user_id=request.user)
 			
 			return render(request, 'upload.html', { 'form' : form, 'filelist' : filelist, 'fileloglist' : fileloglist, 'filemetas' : filemetas  })
@@ -62,140 +65,112 @@ def upload(request):
 	return render(request, 'upload.html', { 'form' : form, 'filelist' : filelist, 'fileloglist' : fileloglist, 'filemetas' : filemetas })
 	
 
-def handle_files(csv_file, user, ruleid):
+def handle_files(excel_file, user, module):
 
-   newfile = Files(files=csv_file,user=user)
+   newfile = Files(files=excel_file,user=user)
    newfile.save()
 
-   entry = FileLogs(uploadid=Files.objects.get(uploadid=newfile.uploadid), files=csv_file, logs='File Loaded new')
+   entry = FileLogs(uploadid=Files.objects.get(uploadid=newfile.uploadid), files=excel_file, logs='File Received')
    entry.save()
    
-   validate(csv_file, newfile.files.url, newfile.uploadid, ruleid)
+   validate(excel_file, newfile.files.url, newfile.uploadid, module)
 
-def validate(csv_file, new_file, uploadid, ruleid):
+def validate(excel_file, new_file, uploadid, module):
 	
-	print(csv_file)
+	print(excel_file)
 	#filename = "AP&ISA_202002Feb_Maximo_Resoln_wos_BI_20200310.xlsx"
-	filename = str(csv_file)
+	filename = str(excel_file)
 	BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 	FILES_FOLDER = os.path.join(BASE_DIR,'media\\files')
 	filepath = os.path.join(FILES_FOLDER,filename)
 	#filepath = "C:\\Users\\salman\\Desktop\\DjangoLearning\\projects\\DataIngestion\\filemanagement\\fileingest\\media\\files\\APISA_202002Feb_Maximo_Resoln_wos_BI_20200310.xlsx"
 		
-	rule = Rules.objects.get(ruleid=ruleid)
-	rule = json.loads(rule.rule)
+	rules = Rules.objects.all()
 	
-	#1st check if the file name is correct with pattern name and patter period matching strings
-	if re.search(rule["pattern_period"],filename,re.IGNORECASE) and re.search(rule["pattern_name"],filename,re.IGNORECASE):
-		pattern_period = (re.search(rule["pattern_period"],filename,re.IGNORECASE)).group(0) #extract the period 
-		book = openpyxl.load_workbook(filepath) # if yes, open the workbook 
-		
-		entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='File Name Validation : Successful')
+	validationResult  = {}
+
+	validationResult = validateFileExtension(filepath,validationResult)
+
+	if validationResult["extension"] == True:
+        
+		validationResult = validateFileNamePattern(rules,filepath,validationResult,module)
+		entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=excel_file, logs='File Extention Validation : Successful')
 		entry.save()
-		sheet_found = 0
-		for sheetname in book.sheetnames:
-			if re.search(rule["sheetName"],sheetname,re.IGNORECASE): # check if we have the required sheet. 
-				entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs=('Sheet Name "' + sheetname+ '" Validation : Successful'))
+		print(validationResult)
+
+		if validationResult["filename_pattern"][2]== True:
+
+			validationResult = validatePeriodPattern(rules,filepath,validationResult,module)
+			entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=excel_file, logs='File Name Validation : Successful')
+			entry.save()
+			print(validationResult)			
+
+			if validationResult["period_pattern"][3] == True:
+
+				validationResult = validateSheets(rules,filepath,validationResult,module)
+				entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=excel_file, logs='Period File Validation : Successful')
 				entry.save()
-				sheet_found = 1  
+				print(validationResult)				
 
-				xl_sheet = book[sheetname]
-				if xl_sheet.max_column == 0:
-					entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs=('No data present in SheetName: ' + sheetname))
+				if validationResult["sheetname_pattern"][1] ==True:
+
+					validationResult=validateColumns(rules,filepath,validationResult,module)
+					entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=excel_file, logs=('Sheet Name Validation : Successful'))
 					entry.save()
-				else:
-					columns=[]
-					if rule["header"]:
-						header = rule["header"]				
-						for cell in xl_sheet[header]: 
-							columns.append(cell.value)
-						#now check for missing columns 						
-						missing_columns =  [item for item in rule["columns"] if item not in columns]
+					print(validationResult)					
 
-						if missing_columns:
-							entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs=('All expected Columns not present in the Sheet: ' + sheetname))
-							entry.save()
-						else:
-							col_offset = 0
-							for val in columns:
-								if val is None:
-									col_offset += 1
-							entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='All validations Successful. Ready to process.')
-							entry.save()
-
-							xl_sheet.delete_cols(1, col_offset)
-							xl_sheet.delete_rows(1,(header-1))
-							book.save(filepath)
-							exceltocsv(filepath,FILES_FOLDER)
-							entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='Uploaded to aws')
-							entry.save() 
+					if validationResult["columns"][1] == True:
+						entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=excel_file, logs=('Columns Validation : Successful'))
+						entry.save()
+						print ("success")
+						exceltocsv(filepath,FILES_FOLDER,module)
 						
 					else:
-						no_of_rows = xl_sheet.max_row
-						#searching top 50 rows for headers
-						counter = 1
-						while counter < no_of_rows:
-							columns=[]
-							for cell in xl_sheet[counter]: 
-								columns.append(cell.value)
-							if [item for item in rule["columns"] if item not in columns]:
-								counter = counter + 1
-								if counter > 50:
-									break
-								continue
-							else:
-								col_offset = 0
-								for val in columns:
-									if val is None:
-										col_offset += 1
-								entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs=('Header found at row number: '+ str(counter)))
-								entry.save()
-								entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='All validations Successful. Ready to process.')
-								entry.save()
-
-								xl_sheet.delete_cols(1, col_offset)
-								xl_sheet.delete_rows(1,(counter-1))
-								book.save(filepath)
-								exceltocsv(filepath,FILES_FOLDER)
-								entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='Uploaded to aws')
-								entry.save() 
-								break
-						if counter > 50:
-							entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs=('Header not found in top 50 rows'))
-							entry.save()
-		if sheet_found == 0:
-			entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs=('Sheet Name "' + sheetname+ '" Validation : Failed. Expected Sheet Not Found.'))
+						entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=excel_file, logs='Columns Validation : Failed')
+						entry.save()
+						
+				else:
+					entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=excel_file, logs='Sheet Name Validation : Failed')
+					entry.save()
+						
+			else:
+				entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=excel_file, logs='Period File Validation : Failed')
+				entry.save()
+						
+		else:
+			entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=excel_file, logs='File Name Validation : Failed')
 			entry.save()
-		
-		
+	
 	else:
-		entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=csv_file, logs='File Name Validation : Failed')
+		entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=excel_file, logs='File Extention Validation : Failed')
 		entry.save()
 
-def exceltocsv(filepath,FILES_FOLDER):
+def exceltocsv(filepath,FILES_FOLDER,module):
 	df = pd.read_excel(filepath, sheet_name=None)
 	somevar = FILES_FOLDER
 	csvlist = []
 	for key, value in df.items():
-		df[key].to_csv('%s%s.csv' %(somevar ,key),index =None, header= True)	 
-		csvlist.append('%s%s.csv' %(somevar ,key))
-		uploadtordbms(csvlist)
+		df[key].to_csv('%s\\%s.csv' %(somevar ,key),index =None, header= True)	 
+		csvlist.append('%s\\%s.csv' %(somevar ,key))
+	uploadtordbms(csvlist,module)
  
-
-def uploadtordbms(csvlist):
-	ACCESS_KEY = 'AKIAJ2YIY2GG64RZMZOA' 
-	SECRET_KEY = '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'
+def uploadtordbms(csvlist,module):
+	print(csvlist)
+	ACCESS_KEY = '' 
+	SECRET_KEY = ''
+	modules3 = module+'/{}'
 	for filepath in csvlist:
-		
+		print(filepath)
 		local_file = filepath
-		bucket_name = 'myawsgluesrcbucket'
+		bucket_name = ''
+		print(bucket_name)
 		s3_file_name = os.path.basename(local_file)
 
 		s3 = boto3.client('s3', aws_access_key_id=ACCESS_KEY,aws_secret_access_key=SECRET_KEY)
+		
 		try:
-			s3.upload_file(local_file, bucket_name, s3_file_name)
+			s3.upload_file(local_file, bucket_name,modules3.format(s3_file_name))
 			print("Upload Successful")
-			return True
 		except FileNotFoundError:
 			print("The file was not found")
 			return False
@@ -203,6 +178,170 @@ def uploadtordbms(csvlist):
 			print("Credentials not available")
 			return False
 
+def validateFileExtension(filepath,validationResult):
+
+	extension  = os.path.splitext(filepath)[1]
+
+	#check if extension is correct
+	if re.search(".xlsx",extension,re.IGNORECASE):
+		validationResult.update({'extension':True})
+	else:
+		validationResult.update({'extension':False})
+
+	return validationResult
+
+def validateFileNamePattern(rules,filepath,validationResult,module):
+	filename = os.path.basename(filepath)
+	validationResult.update({'filename_pattern':["",filename,False]})
+    
+	for rule in rules:
+		ruleJSON = json.loads(rule.rule)
+		if re.search(ruleJSON["filename_pattern"],filename,re.IGNORECASE) and re.search(ruleJSON["module"],module,re.IGNORECASE):
+			validationResult.update({'filename_pattern':[ruleJSON["filename_pattern"],filename,True]})
+    
+	return validationResult
+
+def validatePeriodPattern(rules,filepath,validationResult,module):
+	filename = os.path.basename(filepath)
+	validationResult.update({'period_pattern':["",filename,"",False]})
+
+	for rule in rules:
+		ruleJSON = json.loads(rule.rule)
+
+		if re.search(ruleJSON["filename_pattern"],filename,re.IGNORECASE) and re.search(ruleJSON["module"],module,re.IGNORECASE):
+
+			if re.search(ruleJSON["period_pattern"],filename,re.IGNORECASE):
+				validationResult.update({'period_pattern':[ruleJSON["period_pattern"],filename,(re.search(ruleJSON["period_pattern"],filename,re.IGNORECASE)).group(0),True]})
+				break
+			else:
+				validationResult.update({'period_pattern':[ruleJSON["period_pattern"],filename,"",False]})
+
+	return validationResult
+
+def validateSheets(rules,filepath,validationResult,module):
+	expectedsheets = {}
+
+	book = openpyxl.load_workbook(filepath)
+	presentSheets = [x.lower() for x in book.sheetnames]
+
+	for rule in rules:
+		ruleJSON = json.loads(rule.rule)
+
+		if (re.search(ruleJSON["module"],module,re.IGNORECASE) and (ruleJSON["period_pattern"]==validationResult["period_pattern"][0]) and re.search(ruleJSON["filename_pattern"],validationResult["filename_pattern"][0],re.IGNORECASE)):
+			if ([item for item in [(ruleJSON["sheetname_pattern"]).lower()] if item in presentSheets]):
+				expectedsheets.update({ruleJSON["sheetname_pattern"]:True})
+			else:
+				expectedsheets.update({ruleJSON["sheetname_pattern"]:False})
+	if ([item for item in [False] if item in expectedsheets.values()] or (not expectedsheets)):
+		validationResult.update({'sheetname_pattern':[expectedsheets,False]})
+	else:
+		validationResult.update({'sheetname_pattern':[expectedsheets,True]})
+    
+	return validationResult
+
+def validateColumns(rules,filepath,validationResult,module):
+	expectedresult = {}
+	book = openpyxl.load_workbook(filepath) 
+
+	for sheetname in book.sheetnames:
+		partialmatch_Header=0 
+		partialmatch_Counter =0 
+		partial_delta = []
+		print(sheetname)
+		xl_sheet = book[sheetname]
+		print(xl_sheet)
+		
+		for rule in rules:
+			ruleJSON = json.loads(rule.rule)
+			ruleid = rule.ruleid
+			
+			
+			if (re.search(ruleJSON["module"],module,re.IGNORECASE) and (ruleJSON["period_pattern"]==validationResult["period_pattern"][0]) and re.search(ruleJSON["filename_pattern"],validationResult["filename_pattern"][0],re.IGNORECASE) and re.search(ruleJSON["sheetname_pattern"],sheetname,re.IGNORECASE)):
+				print("Entry")
+				if ruleJSON["header"] and ruleJSON["column_offset"]:
+					columns=[]
+					for cell in xl_sheet[ruleJSON["header"]]:
+						columns.append(cell.value)
+					missing_columns =  [item for item in ruleJSON["columns"] if item not in columns]
+
+					if missing_columns:
+						expectedresult.update({sheetname:[ruleJSON["columns"],missing_columns,ruleJSON["header"],ruleJSON["column_offset"],False,None]})
+					else:
+						expectedresult.update({sheetname:[ruleJSON["columns"],None,ruleJSON["header"],ruleJSON["column_offset"],True,ruleid]})
+						if int(ruleJSON["column_offset"]) > 0:
+							xl_sheet.delete_cols(1, int(ruleJSON["column_offset"]))
+						if int(ruleJSON["header"])>1 :
+							xl_sheet.delete_rows(1,(int(ruleJSON["header"])-1))
+                
+				if (ruleJSON["header"] == "" or ruleJSON["header"] is None):
+					no_of_rows = xl_sheet.max_row
+					counter = 1
+					while counter < no_of_rows:
+						columns=[]
+						for cell in xl_sheet[counter]:
+							columns.append(cell.value)
+							
+						if [item for item in [ruleJSON["columns"]] if item in columns]:
+							if counter==1:
+								partialmatch_Counter = len([item for item in [ruleJSON["columns"]] if item in columns])
+								partialmatch_Header = counter
+								partial_delta = [item for item in [ruleJSON["columns"]] if item in columns]
+								partial_col_offset = 0
+								for val in columns:
+									if val is None:
+										partial_col_offset += 1
+							elif  partialmatch_Counter > len([item for item in [ruleJSON["columns"]] if item in columns]):
+								partialmatch_Counter = len([item for item in [ruleJSON["columns"]] if item in columns])
+								partialmatch_Header = counter
+								partial_delta = [item for item in [ruleJSON["columns"]] if item in columns]
+								partial_col_offset = 0
+								for val in columns:
+									if val is None:
+										partial_col_offset += 1
+                                        
+							counter = counter + 1
+							if counter > 50:
+								break
+							continue
+						else:
+							if ruleJSON["column_offset"]:
+								if col_offset > 0:
+									xl_sheet.delete_cols(1, ruleJSON["column_offset"])
+								if counter > 1 :
+									xl_sheet.delete_rows(1,(counter-1))
+								expectedresult.update({sheetname:[ruleJSON["columns"],None,counter,ruleJSON["column_offset"],True,ruleid]})
+                                
+							else:
+								col_offset = 0
+								for val in columns:
+									if val is None:
+										col_offset += 1
+								if col_offset > 0:
+									xl_sheet.delete_cols(1, col_offset)
+								if counter > 1 :
+									xl_sheet.delete_rows(1,(counter-1))
+								expectedresult.update({sheetname:[ruleJSON["columns"],None,counter,col_offset,True,ruleid]})
+								break
+
+					if counter > 50:
+						print (partialmatch_Counter)
+						print (partialmatch_Header)
+						print (partial_delta )
+						print ("header not found")
+						expectedresult.update({sheetname:[ruleJSON["columns"],partial_delta,partialmatch_Header,partial_col_offset,False,None]})
+
+	print(expectedresult.values())
+	result =[]
+	for resvals in expectedresult.values():
+		result.append(resvals[4])
+    
+	if ([item for item in [False] if item in result] or (not result)):
+		validationResult.update({'columns':[expectedresult,False]})
+	else:
+		validationResult.update({'columns':[expectedresult,True]})
+
+	return validationResult
+			
 def register(request):
 	
 	rules = Rules.objects.all()

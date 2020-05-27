@@ -27,7 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+#SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+#SESSION_COOKIE_AGE = 1 * 60 #
 # Application definition
 
 INSTALLED_APPS = [
@@ -51,7 +52,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+#SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+
 ROOT_URLCONF = 'fileingest.urls'
+
+#AUTO_LOGOUT_DELAY = 1 #equivalent to 5 minutes
 
 TEMPLATES = [
     {

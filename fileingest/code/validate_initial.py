@@ -92,7 +92,7 @@ def validateColumns(rules,filepath,validationResult,module):
                     columns=[]
                     for cell in xl_sheet[ruleJSON["header"]]:
                         columns.append(cell.value)
-                    missing_columns =  [item for item in [ruleJSON["columns"]] if item not in columns]
+                    missing_columns =  [item for item in ruleJSON["columns"] if item not in columns]
                     print("yes")
                     print(columns)
                     print(missing_columns)
@@ -207,8 +207,8 @@ def validate(filepath,module,rules):
                         print ("success")
 
 def start():
-	filepath = "C:\GITHUB\TestFileRules\Dec_Health&Safety_January 2020.xlsx"
-	module = "HealthAndSafety"
+	filepath = "C:\GITHUB\TestFileRules\AP&ISA_202003Mar_Maximo_OpenWO_wos_BI_20200310.xlsx"
+	module = "Maximo"
 	connection = psycopg2.connect(user="postgres",
                                   password="postgres",
                                   host="127.0.0.1",

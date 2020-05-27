@@ -658,13 +658,13 @@ section
 {
 	position: absolute;
 	top: -353px;
-	width: calc(100% + 122px);
+	width: calc(100% + 125px);
 	left: -61px;
 	padding-top: 47px;
 	padding-left: 61px;
 	padding-right: 61px;
 	padding-bottom: 59px;
-	background: rgba(255,255,255,0.26);
+	background: rgba(255,255,255,0.30);
 	border-radius: 12px;
 }
 .home_search_title
