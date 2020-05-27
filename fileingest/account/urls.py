@@ -7,5 +7,7 @@ urlpatterns = [
 	path('upload', views.upload, name='upload'),
 	path('register', views.register, name='register'),
 	path('uploadrules',views.uploadrules,name = 'uploadrules'),
-	path('update_rules', views.update_rules, name = 'update_rules')
+	path('update_rules', views.update_rules, name = 'update_rules'),
+	path('hello/', views.HelloView.as_view(), name='hello'),
+	path('uploadAPI/', views.FileView.as_view(), name='file-upload'),
 ]

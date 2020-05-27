@@ -19,6 +19,50 @@ import xlrd
 import boto3
 from botocore.exceptions import NoCredentialsError
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated  # <-- Here
+
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework import status
+
+from .serializers import FileSerializer
+
+class HelloView(APIView):
+	permission_classes = (IsAuthenticated,)
+
+	def get(self,request):
+		content = {'get':'val'}
+		return Response(content)
+
+	def post(self,request, *args, **kwargs):
+		myvar = request.user.email
+		content = request.data
+		return Response(content)
+
+class FileView(APIView):
+	parser_classes = (MultiPartParser, FormParser)
+	def post(self, request, *args, **kwargs):
+		#handle_files()
+		request.data["user"]=request.user.id
+
+		file_serializer = FileSerializer(data=request.data)
+		if file_serializer.is_valid():
+			file_serializer.save()
+
+			#print(request.data['module'])
+
+			filename =os.path.basename(file_serializer.data["files"])	
+			user = file_serializer.data["user"]
+			uploadid = file_serializer.data["uploadid"]
+			module = request.data['module']
+			handle_filesAPI(filename,user,module,uploadid)
+			#print(file_serializer.uploadid)
+			return Response(file_serializer.data, status=status.HTTP_201_CREATED)
+		else:
+			return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 # Create your views here.
 def login(request):
 	if request.method == 'POST':
@@ -64,6 +108,11 @@ def upload(request):
 		form = FileForm()
 	return render(request, 'upload.html', { 'form' : form, 'filelist' : filelist, 'fileloglist' : fileloglist, 'filemetas' : filemetas })
 	
+def handle_filesAPI(excel_file, user, module,uploadid):
+	entry = FileLogs(uploadid=Files.objects.get(uploadid=uploadid), files=excel_file, logs='File Received')
+	entry.save()
+	
+	validate(excel_file, excel_file, uploadid, module)
 
 def handle_files(excel_file, user, module):
 
